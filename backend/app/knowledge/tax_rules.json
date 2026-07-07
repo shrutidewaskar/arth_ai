@@ -1,0 +1,15 @@
+{
+  "indian_tax_regimes": {
+    "standard_deduction": 75000,
+    "slabs_new_regime_fy25_26": [
+      {"limit": 400000, "rate": 0.0},
+      {"limit": 800000, "rate": 0.05},
+      {"limit": 1200000, "rate": 0.10},
+      {"limit": 1600000, "rate": 0.15},
+      {"limit": 2000000, "rate": 0.20},
+      {"limit": 99999999, "rate": 0.30}
+    ],
+    "section_80c_limit": 150000,
+    "section_24b_home_loan_interest_limit": 200000
+  }
+}

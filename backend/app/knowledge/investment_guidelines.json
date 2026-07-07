@@ -1,0 +1,10 @@
+{
+  "asset_allocation": {
+    "equity_allocation_rule": "100_minus_age",
+    "emergency_buffer_percentage": 10.0
+  },
+  "mutual_funds": {
+    "sip_recommendation_increment_annually_pct": 10.0,
+    "elss_lock_in_years": 3
+  }
+}

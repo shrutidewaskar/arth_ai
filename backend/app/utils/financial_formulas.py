@@ -51,25 +51,48 @@ def calculate_financial_health_score(
     savings_ratio: float,
     dti_ratio: float,
     emergency_runway_months: float,
-    insurance_coverage_ratio: float
-) -> int:
+    insurance_coverage_ratio: float,
+    investment_yield_ratio: float = 100.0,
+    goals_completion_ratio: float = 100.0
+) -> Dict[str, Any]:
     """
-    Calculates overall score from 0 to 100.
+    Calculates overall score from 0 to 100 with weighted component scores:
+    - Savings Rate (25%)
+    - Debt/DTI (20%)
+    - Cash Flow/Emergency runway (20%)
+    - Investments (15%)
+    - Insurance (10%)
+    - Goals (10%)
     """
-    # 1. Savings Ratio component (max 25 pts)
-    # Target savings ratio is 30%
+    # 1. Savings Rate component (max 25 pts) - target is 30% savings rate
     savings_score = min((savings_ratio / 30.0) * 25.0, 25.0)
     
-    # 2. Debt-to-income component (max 25 pts)
-    # Target DTI is below 40%
-    dti_score = max(25.0 - (dti_ratio / 40.0) * 25.0, 0.0)
+    # 2. Debt-to-income component (max 20 pts) - target is below 40% DTI
+    debt_score = max(20.0 - (dti_ratio / 40.0) * 20.0, 0.0)
     
-    # 3. Emergency Runway component (max 25 pts)
-    # Target runway is 6 months
-    runway_score = min((emergency_runway_months / 6.0) * 25.0, 25.0)
+    # 3. Cash Flow / Emergency Runway component (max 20 pts) - target is 6 months
+    cash_flow_score = min((emergency_runway_months / 6.0) * 20.0, 20.0)
     
-    # 4. Insurance coverage component (max 25 pts)
-    insurance_score = min((insurance_coverage_ratio / 100.0) * 25.0, 25.0)
+    # 4. Investments performance component (max 15 pts)
+    investments_score = min((investment_yield_ratio / 100.0) * 15.0, 15.0)
     
-    total_score = int(savings_score + dti_score + runway_score + insurance_score)
-    return max(min(total_score, 100), 10)
+    # 5. Insurance coverage component (max 10 pts)
+    insurance_score = min((insurance_coverage_ratio / 100.0) * 10.0, 10.0)
+    
+    # 6. Goals completion component (max 10 pts)
+    goals_score = min((goals_completion_ratio / 100.0) * 10.0, 10.0)
+    
+    total_score = int(savings_score + debt_score + cash_flow_score + investments_score + insurance_score + goals_score)
+    aggregate_score = max(min(total_score, 100), 10)
+    
+    return {
+        "aggregate_score": aggregate_score,
+        "breakdown": {
+            "savings": float(round(savings_score, 2)),
+            "debt": float(round(debt_score, 2)),
+            "cash_flow": float(round(cash_flow_score, 2)),
+            "investments": float(round(investments_score, 2)),
+            "insurance": float(round(insurance_score, 2)),
+            "goals": float(round(goals_score, 2))
+        }
+    }

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List, Dict, Any
@@ -83,6 +84,146 @@ async def update_profile(
         
     await db.flush()
     return profile
+
+# --- Demo & AI Brief Routes ---
+@router.post("/demo/seed")
+async def seed_demo_data(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # 1. Seed/Update Financial Profile
+    profile_res = await db.execute(select(FinancialProfile).filter(FinancialProfile.user_id == current_user.id))
+    profile = profile_res.scalars().first()
+    if not profile:
+        profile = FinancialProfile(user_id=current_user.id)
+        db.add(profile)
+    
+    profile.occupation = "Lead Engineer"
+    profile.city = "Delhi NCR"
+    profile.age = 36
+    profile.marital_status = "Married"
+    profile.dependents = 2
+    profile.risk_appetite = "Moderate"
+    profile.monthly_income = Decimal("205000.00")
+    profile.monthly_expenses = Decimal("142000.00")
+    profile.monthly_savings = Decimal("63000.00")
+    profile.emergency_fund = Decimal("500000.00")
+    profile.credit_score = 790
+    
+    # 2. Clear & Seed Goals
+    await db.execute(text(f"DELETE FROM goals WHERE user_id = '{current_user.id}'"))
+    goals = [
+        Goal(user_id=current_user.id, goal_name="Home Downpayment", category="Home", target_amount=Decimal("4000000.00"), saved_amount=Decimal("800000.00"), monthly_contribution=Decimal("30000.00"), priority="Critical", status="Active"),
+        Goal(user_id=current_user.id, goal_name="SUV Purchase", category="Vehicle", target_amount=Decimal("1500000.00"), saved_amount=Decimal("200000.00"), monthly_contribution=Decimal("15000.00"), priority="Medium", status="Active"),
+        Goal(user_id=current_user.id, goal_name="Retirement Corpus", category="Retirement", target_amount=Decimal("25000000.00"), saved_amount=Decimal("1200000.00"), monthly_contribution=Decimal("18000.00"), priority="High", status="Active")
+    ]
+    for g in goals:
+        db.add(g)
+
+    # 3. Clear & Seed Liabilities
+    await db.execute(text(f"DELETE FROM liabilities WHERE user_id = '{current_user.id}'"))
+    liabilities = [
+        Liability(user_id=current_user.id, loan_name="HDFC Home Loan", loan_type="HomeLoan", principal=Decimal("4500000.00"), outstanding=Decimal("4200000.00"), interest_rate=Decimal("8.50"), emi=Decimal("38000.00"))
+    ]
+    for l in liabilities:
+        db.add(l)
+
+    # 4. Clear & Seed Investments
+    await db.execute(text(f"DELETE FROM investments WHERE user_id = '{current_user.id}'"))
+    investments = [
+        Investment(user_id=current_user.id, investment_type="MutualFunds", platform="PPFAS / Groww", invested_amount=Decimal("720000.00"), current_value=Decimal("850000.00"), expected_return=Decimal("14.50")),
+        Investment(user_id=current_user.id, investment_type="FixedDeposit", platform="SBI Bank", invested_amount=Decimal("300000.00"), current_value=Decimal("320000.00"), expected_return=Decimal("7.10"))
+    ]
+    for i in investments:
+        db.add(i)
+
+    # 5. Clear & Seed Insurance
+    await db.execute(text(f"DELETE FROM insurance WHERE user_id = '{current_user.id}'"))
+    insurances = [
+        Insurance(user_id=current_user.id, policy_name="Star Health Optima", provider="Star Health", coverage=Decimal("1000000.00"), premium=Decimal("20000.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=45)),
+        Insurance(user_id=current_user.id, policy_name="ICICI Lombard Car Shield", provider="ICICI Lombard", coverage=Decimal("1500000.00"), premium=Decimal("18000.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=90))
+    ]
+    for ins in insurances:
+        db.add(ins)
+
+    # 6. Clear & Seed Subscriptions
+    await db.execute(text(f"DELETE FROM subscriptions WHERE user_id = '{current_user.id}'"))
+    subscriptions = [
+        Subscription(user_id=current_user.id, service="Netflix Premium", amount=Decimal("649.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=12)),
+        Subscription(user_id=current_user.id, service="Amazon Prime", amount=Decimal("1499.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=28))
+    ]
+    for s in subscriptions:
+        db.add(s)
+
+    # 7. Seed Insights
+    await db.execute(text(f"DELETE FROM ai_insights WHERE user_id = '{current_user.id}'"))
+    insights = [
+        AIInsight(user_id=current_user.id, category="Tax", title="Switch to New Tax Regime", description="Based on your standard salary structure, switching to the New Tax Regime will save you ₹52,400 in direct taxes this year.", priority="High"),
+        AIInsight(user_id=current_user.id, category="Debt", title="Home Loan Prepayment Opportunity", description="Prepaying an additional 1 EMI (₹38,000) annually will reduce your loan tenure by 32 months and save ₹8.4 Lakhs in lifetime interest.", priority="Medium"),
+        AIInsight(user_id=current_user.id, category="Savings", title="Subscription Leaks Detected", description="You have 3 overlapping OTT memberships totaling ₹1,490/month. Streamlining will free up capital for mutual fund SIPs.", priority="Low")
+    ]
+    for ins in insights:
+        db.add(ins)
+
+    # 8. Seed Memories
+    await db.execute(text(f"DELETE FROM ai_memories WHERE user_id = '{current_user.id}'"))
+    memories = [
+        AIMemory(user_id=current_user.id, memory_type="Goal", summary="User wants to prioritize paying off home loan early.", importance_score=8),
+        AIMemory(user_id=current_user.id, memory_type="Risk", summary="User risk appetite is moderate; prefers allocation heavily towards index mutual funds rather than direct smallcap stocks.", importance_score=7)
+    ]
+    for m in memories:
+        db.add(m)
+
+    await db.commit()
+    return {"status": "seeded", "message": "Demo mode initialized for Rajesh Sharma."}
+
+@router.get("/brief")
+async def get_daily_brief(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    profile_res = await db.execute(select(FinancialProfile).filter(FinancialProfile.user_id == current_user.id))
+    profile = profile_res.scalars().first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found. Please seed demo first.")
+
+    # Fetch context to compile rules
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.rules_engine import BusinessRuleEngine
+    cb = ContextBuilder()
+    re = BusinessRuleEngine()
+    
+    context = await cb.build_context(current_user.id, db)
+    rules = re.compute_all_rules(
+        profile=context.get("profile", {}),
+        income_sources=context.get("incomes", []),
+        expense_categories=context.get("expenses", []),
+        assets=context.get("assets", []),
+        liabilities=context.get("liabilities", []),
+        goals=context.get("goals", []),
+        investments=context.get("investments", []),
+        insurance=context.get("insurance", []),
+        subscriptions=context.get("subscriptions", [])
+    )
+
+    first_name = current_user.full_name.split(" ")[0] if current_user.full_name else "Rajesh"
+
+    return {
+        "greeting": f"Good Evening, {first_name}",
+        "health_score": rules["financial_health_score"],
+        "health_score_breakdown": rules["financial_health_score_breakdown"],
+        "summary": [
+            f"Your savings rate is at {rules['savings_rate_pct']:.1f}% (target: 30%).",
+            f"Emergency fund covers {rules['emergency_runway_months']:.1f} months of expenses.",
+            "Home Downpayment goal is currently on track."
+        ],
+        "top_recommendation": "Switch to New Tax Regime to unlock ₹52,400 in annual direct tax savings.",
+        "biggest_risk": "Underinsured gap of ₹12.5 Lakhs based on current multi-generational liabilities.",
+        "largest_opportunity": "Prepay ₹38,000 on home loan principal to shave 32 months off tenure.",
+        "upcoming_event": "Netflix Premium renewing in 12 days (₹649.00).",
+        "suggested_action": "Increase PPFAS Mutual Fund SIP by ₹2,000 monthly.",
+        "confidence": 0.94
+    }
 
 # --- Cash Flow Routes ---
 @router.get("/cashflow")
@@ -350,6 +491,142 @@ async def ask_ai(
         "reply": output["response"],
         "reasoning_steps": output["context"]
     }
+
+@router.post("/chat/stream")
+async def chat_stream(
+    query_in: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    query = query_in.get("query", "")
+    conversation_id = query_in.get("conversation_id")
+    
+    # Track conversation if ID is provided
+    if conversation_id:
+        # Create user message in DB
+        from app.models.financials import Message
+        user_msg = Message(conversation_id=conversation_id, role="user", content=query)
+        db.add(user_msg)
+        await db.flush()
+        
+    async def response_generator():
+        try:
+            full_response = []
+            async for token in orchestrator.execute_reasoning_stream(query, current_user.id, db):
+                full_response.append(token)
+                yield token
+                
+            # If conversation exists, persist final response
+            if conversation_id:
+                from app.models.financials import Message
+                ai_msg = Message(
+                    conversation_id=conversation_id,
+                    role="assistant",
+                    content="".join(full_response)
+                )
+                db.add(ai_msg)
+                await db.commit()
+        except Exception as e:
+            yield f"\n[Error streaming response: {str(e)}]"
+
+    return StreamingResponse(response_generator(), media_type="text/event-stream")
+
+# --- Conversation Sessions Routes ---
+@router.post("/chat/sessions")
+async def create_session(
+    session_in: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.models.financials import Conversation
+    title = session_in.get("title", "New Conversation")
+    conv = Conversation(user_id=current_user.id, title=title)
+    db.add(conv)
+    await db.flush()
+    return {"id": str(conv.id), "title": conv.title, "created_at": conv.created_at}
+
+@router.get("/chat/sessions")
+async def list_sessions(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.models.financials import Conversation
+    res = await db.execute(
+        select(Conversation).filter(Conversation.user_id == current_user.id).order_by(Conversation.created_at.desc())
+    )
+    sessions = res.scalars().all()
+    return [{"id": str(c.id), "title": c.title, "created_at": c.created_at} for c in sessions]
+
+@router.get("/chat/sessions/{id}/messages")
+async def get_session_messages(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.models.financials import Conversation, Message
+    # Verify ownership
+    c_res = await db.execute(select(Conversation).filter(Conversation.id == id, Conversation.user_id == current_user.id))
+    conv = c_res.scalars().first()
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+        
+    m_res = await db.execute(select(Message).filter(Message.conversation_id == id).order_by(Message.timestamp.asc()))
+    messages = m_res.scalars().all()
+    return [{"id": str(m.id), "role": m.role, "content": m.content, "timestamp": m.timestamp} for m in messages]
+
+# --- Memories Routes ---
+@router.get("/memories")
+async def get_memories(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.models.financials import AIMemory
+    res = await db.execute(select(AIMemory).filter(AIMemory.user_id == current_user.id).order_by(AIMemory.created_at.desc()))
+    memories = res.scalars().all()
+    return [{
+        "id": str(m.id),
+        "memory_type": m.memory_type,
+        "summary": m.summary,
+        "importance_score": m.importance_score,
+        "created_at": m.created_at
+    } for m in memories]
+
+@router.post("/memories")
+async def add_memory(
+    memory_in: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.models.financials import AIMemory
+    mem = AIMemory(
+        user_id=current_user.id,
+        memory_type=memory_in.get("memory_type", "Fact"),
+        summary=memory_in.get("summary", ""),
+        importance_score=memory_in.get("importance_score", 5)
+    )
+    db.add(mem)
+    await db.flush()
+    return {
+        "id": str(mem.id),
+        "memory_type": mem.memory_type,
+        "summary": mem.summary,
+        "importance_score": mem.importance_score
+    }
+
+@router.delete("/memories/{id}")
+async def delete_memory(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.models.financials import AIMemory
+    res = await db.execute(select(AIMemory).filter(AIMemory.id == id, AIMemory.user_id == current_user.id))
+    mem = res.scalars().first()
+    if not mem:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    await db.delete(mem)
+    await db.flush()
+    return {"status": "deleted"}
 
 # --- Documents Upload & Analyze ---
 @router.post("/documents/upload")

@@ -1,26 +1,121 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, AsyncGenerator
 from decimal import Decimal
-from app.agents.specialists import (
-    ProfileAgent, CashFlowAgent, InvestmentAgent,
-    InsuranceAgent, GoalAgent, DecisionAgent,
-    MemoryAgent, InsightAgent, RecommendationAgent
-)
-from app.utils.financial_formulas import (
-    calculate_savings_ratio, calculate_debt_to_income_ratio,
-    calculate_emergency_fund_coverage, calculate_financial_health_score
-)
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.engine.intent_classifier import IntentClassifier
+from app.engine.context_builder import ContextBuilder
+from app.engine.memory_engine import MemoryEngine
+from app.engine.rules_engine import BusinessRuleEngine
+from app.engine.simulation_engine import SimulationEngine
+from app.engine.openai_service import OpenAIService
+from app.engine.knowledge_engine import KnowledgeEngine
+from app.agents.orchestrator import AgentOrchestrator
 
 class ReasoningOrchestrator:
+    """
+    The Central AI Orchestrator coordinating intent classification, context building,
+    memory retrieval, specialist agents execution (via AgentOrchestrator), business rules math,
+    scenario simulations, static guidelines, and LLM streaming delivery.
+    """
     def __init__(self):
-        self.profile_agent = ProfileAgent()
-        self.cash_flow_agent = CashFlowAgent()
-        self.investment_agent = InvestmentAgent()
-        self.insurance_agent = InsuranceAgent()
-        self.goal_agent = GoalAgent()
-        self.decision_agent = DecisionAgent()
-        self.memory_agent = MemoryAgent()
-        self.insight_agent = InsightAgent()
-        self.recommendation_agent = RecommendationAgent()
+        self.intent_classifier = IntentClassifier()
+        self.context_builder = ContextBuilder()
+        self.memory_engine = MemoryEngine()
+        self.rules_engine = BusinessRuleEngine()
+        self.simulation_engine = SimulationEngine()
+        self.openai_service = OpenAIService()
+        self.knowledge_engine = KnowledgeEngine()
+        self.agent_orchestrator = AgentOrchestrator()
+
+    async def execute_reasoning_stream(
+        self,
+        user_query: str,
+        user_id: Any,
+        db: AsyncSession
+    ) -> AsyncGenerator[str, None]:
+        """
+        Executes the modular ArthAI reasoning pipeline and streams the generated advice.
+        """
+        # 1. Intent Classification
+        intents = await self.intent_classifier.classify(user_query)
+        
+        # 2. Context Building (Unified financial profile context)
+        context = await self.context_builder.build_context(user_id, db)
+        
+        # 3. Memory Retrieval
+        memories = await self.memory_engine.get_relevant_memories(user_id, user_query, db)
+        
+        # 4. Compute Core Business Rules (Calculations only, including explainable breakdown)
+        rules_output = self.rules_engine.compute_all_rules(
+            profile=context.get("profile", {}),
+            income_sources=context.get("incomes", []),
+            expense_categories=context.get("expenses", []),
+            assets=context.get("assets", []),
+            liabilities=context.get("liabilities", []),
+            goals=context.get("goals", []),
+            investments=context.get("investments", []),
+            insurance=context.get("insurance", []),
+            subscriptions=context.get("subscriptions", [])
+        )
+        
+        # 5. Route to Agent Orchestrator to execute specialists and return standardized recommendations
+        agent_recommendations = await self.agent_orchestrator.orchestrate_agents(intents, context)
+
+        # 6. Scenario Simulation if requested
+        simulation_output = None
+        if "Scenario Simulation" in intents:
+            scenario_name = "Vacation"
+            income = Decimal(str(context.get("profile", {}).get("monthly_income", 0)))
+            inputs = {"cost": 250000}
+            query_lower = user_query.lower()
+            if "car" in query_lower or "vehicle" in query_lower:
+                scenario_name = "Purchase Vehicle"
+                inputs = {"price": 1200000, "downpayment": 300000, "loan_interest": 9.2, "loan_tenure_years": 5}
+            elif "home" in query_lower or "house" in query_lower:
+                scenario_name = "Purchase Home"
+                inputs = {"price": 5500000, "downpayment": 1200000, "loan_interest": 8.4, "loan_tenure_years": 20}
+            elif "switch" in query_lower or "job" in query_lower or "career" in query_lower:
+                scenario_name = "Career Switch"
+                inputs = {"new_salary": float(income) * 1.3}
+            elif "medical" in query_lower or "emergency" in query_lower or "hospital" in query_lower:
+                scenario_name = "Unexpected Medical Expense"
+                inputs = {"cost": 400000, "insurance_claim": 250000}
+
+            simulation_raw = self.simulation_engine.simulate_scenario(
+                scenario_type=scenario_name,
+                inputs=inputs,
+                profile=context.get("profile", {}),
+                goals=context.get("goals", []),
+                liabilities=context.get("liabilities", [])
+            )
+            
+            # Map simulation outcome to standardized Recommendation Schema
+            from app.agents.specialists import ScenarioSimulatorAgent
+            simulator_agent = ScenarioSimulatorAgent()
+            simulation_output = await simulator_agent.run_scenario_wrapper(scenario_name, inputs, simulation_raw)
+            agent_recommendations.append(simulation_output)
+
+        # 7. Get static references from the Knowledge Engine
+        static_guidelines = self.knowledge_engine.get_all_guidelines()
+        
+        # 8. Stream response from OpenAI service using structured parameters
+        async for token in self.openai_service.generate_response_stream(
+            user_query=user_query,
+            structured_context=context,
+            memories=memories,
+            rules_output=rules_output,
+            simulation_output=simulation_output,
+            recommendations=agent_recommendations,
+            guidelines=static_guidelines
+        ):
+            yield token
+            
+        # Reconstruct message turn to run memory summarization
+        history = [
+            {"role": "user", "content": user_query},
+            {"role": "assistant", "content": "Delivered advice based on current financial profile."}
+        ]
+        await self.memory_engine.run_auto_summarization(user_id, history, db)
 
     async def execute_reasoning_flow(
         self,
@@ -33,96 +128,21 @@ class ReasoningOrchestrator:
         memories_data: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
-        Executes the main ArthAI reasoning pipeline:
-        Intent Detection -> Agent Collaboration -> Rules Engine -> Recommendation Generation.
+        Legacy synchronous fallback method to keep existing APIs working.
         """
-        
-        # 1. Intent Detection (Simple classification)
-        query_lower = user_query.lower()
-        intent = "general_query"
-        if "buy" in query_lower or "afford" in query_lower or "macbook" in query_lower or "car" in query_lower or "suv" in query_lower:
-            intent = "purchase_decision"
-        elif "prepay" in query_lower or "loan" in query_lower:
-            intent = "debt_repayment"
-        elif "invest" in query_lower or "sip" in query_lower or "bonus" in query_lower:
-            intent = "investment_allocation"
-        elif "insurance" in query_lower or "coverage" in query_lower:
-            intent = "insurance_analysis"
-            
-        # 2. Extract values for formulas
-        income = Decimal(str(profile_data.get("monthly_income", 204000)))
-        expenses = Decimal(str(profile_data.get("monthly_expenses", 142000)))
-        savings = Decimal(str(profile_data.get("monthly_savings", 62000)))
-        emergency_fund = Decimal(str(profile_data.get("emergency_fund", 800000)))
-        
-        total_emis = sum(Decimal(str(l.get("emi", 0))) for l in liabilities_data)
-        
-        # 3. Calculate Core Business Rules Heuristics
-        savings_ratio = calculate_savings_ratio(savings, income)
-        dti_ratio = calculate_debt_to_income_ratio(total_emis, income)
-        emergency_runway = calculate_emergency_fund_coverage(emergency_fund, expenses)
-        
-        total_insurance_coverage = sum(Decimal(str(ins.get("coverage", 0))) for ins in insurance_data)
-        target_insurance_coverage = income * 120 # 10x annual income
-        insurance_pct = (total_insurance_coverage / target_insurance_coverage * 100) if target_insurance_coverage > 0 else 100.0
-        
-        health_score = calculate_financial_health_score(
-            savings_ratio=savings_ratio,
-            dti_ratio=dti_ratio,
-            emergency_runway_months=emergency_runway,
-            insurance_coverage_ratio=float(insurance_pct)
+        rules = self.rules_engine.compute_all_rules(
+            profile=profile_data,
+            income_sources=[],
+            expense_categories=[],
+            assets=[],
+            liabilities=liabilities_data,
+            goals=goals_data,
+            investments=investments_data,
+            insurance=insurance_data,
+            subscriptions=[]
         )
         
-        # 4. Trigger Specific Specialist Agents depending on Intent
-        agent_findings = {}
-        if intent == "purchase_decision":
-            # Extract simulated price
-            price = Decimal("1500000") # default to SUV price
-            if "macbook" in query_lower:
-                price = Decimal("90000")
-            elif "vacation" in query_lower:
-                price = Decimal("350000")
-                
-            agent_findings["decision"] = await self.decision_agent.simulate_purchase(
-                price=price,
-                monthly_income=income,
-                savings=savings,
-                goals=goals_data
-            )
-        
-        # Always run profile & cashflow assessments
-        agent_findings["profile"] = await self.profile_agent.get_summary(profile_data)
-        agent_findings["cash_flow"] = await self.cash_flow_agent.analyze_and_project(income, expenses, savings)
-        agent_findings["insurance_shield"] = await self.insurance_agent.detect_gaps(insurance_data, expenses)
-        agent_findings["goal_timeline"] = await self.goal_agent.project_completion_dates(goals_data, savings)
-        
-        # 5. Compile Recommendation Object
-        recommendations = await self.recommendation_agent.generate_actions(
-            health_score=health_score,
-            gaps=agent_findings["insurance_shield"]
-        )
-        
-        # 6. Generate Structural LLM Context Object
-        context = {
-            "intent": intent,
-            "health_score": health_score,
-            "savings_ratio": savings_ratio,
-            "dti_ratio": dti_ratio,
-            "emergency_runway_months": emergency_runway,
-            "findings": agent_findings,
-            "recommendations": recommendations,
-            "memories_retrieved": memories_data
-        }
-        
-        # 7. LLM Response Generator (Mocking response layer structure)
-        # In Sprint 3, this will pass context directly to OpenAI GPT-5.5 endpoint.
-        ai_response_text = f"💡 **AI CFO Recommendation:** Your overall financial health score is **{health_score}/100**. "
-        if intent == "purchase_decision":
-            ai_response_text += f"Buying this asset represents a {agent_findings['decision']['cash_impact_pct']:.1f}% hit to cash reserves. {agent_findings['decision']['affordability_result']}. Suggestion: {agent_findings['decision']['alternative_suggestion']}"
-        else:
-            ai_response_text += f"I suggest: {recommendations['priority_action']}"
-            
         return {
-            "response": ai_response_text,
-            "context": context
+            "response": f"💡 **AI CFO Recommendation:** Your overall financial health score is **{rules['financial_health_score']}/100**.",
+            "context": rules
         }

@@ -1,0 +1,14 @@
+{
+  "emergency_fund": {
+    "recommended_months_expenses": 6.0,
+    "high_risk_months_expenses": 9.0
+  },
+  "savings_rate": {
+    "minimum_benchmark_pct": 20.0,
+    "ideal_benchmark_pct": 30.0
+  },
+  "debt_to_income": {
+    "safe_threshold_pct": 35.0,
+    "maximum_critical_pct": 45.0
+  }
+}

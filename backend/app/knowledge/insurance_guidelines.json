@@ -1,0 +1,10 @@
+{
+  "life_insurance": {
+    "recommended_income_multiplier": 10.0,
+    "ideal_income_multiplier": 15.0
+  },
+  "health_insurance": {
+    "base_tier_1_city_sum_insured": 1000000,
+    "family_floater_recommended": true
+  }
+}
