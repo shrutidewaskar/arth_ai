@@ -1,0 +1,84 @@
+{
+  "household_name": "Sharma Family",
+  "members": [
+    {
+      "name": "Rajesh Sharma",
+      "age": 45,
+      "role": "head",
+      "income_lpa": 18.0,
+      "tax_regime": "new"
+    },
+    {
+      "name": "Sunita Sharma",
+      "age": 42,
+      "role": "spouse",
+      "income_lpa": 6.5,
+      "tax_regime": "new"
+    },
+    {
+      "name": "Aarav Sharma",
+      "age": 14,
+      "role": "member"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Ancestral Gold",
+      "type": "gold",
+      "gold_weight_grams": 250,
+      "current_value": 1850000,
+      "institution": "Self Custody"
+    },
+    {
+      "name": "SBI Fixed Deposit",
+      "type": "fixed_deposit",
+      "current_value": 800000,
+      "interest_rate": 6.8,
+      "maturity_date": "2028-05-15",
+      "institution": "State Bank of India"
+    },
+    {
+      "name": "EPF Rajesh",
+      "type": "employee_provident_fund",
+      "current_value": 1200000,
+      "interest_rate": 8.25,
+      "institution": "EPFO"
+    },
+    {
+      "name": "Parag Parikh Flexi Cap Fund",
+      "type": "mutual_fund",
+      "current_value": 450000,
+      "institution": "PPFAS Mutual Fund",
+      "metadata": {
+        "folio": "847291/09",
+        "category": "Equity - Flexi Cap"
+      }
+    }
+  ],
+  "liabilities": [
+    {
+      "name": "HDFC Home Loan",
+      "institution": "HDFC Bank",
+      "loan_type": "home_loan",
+      "principal_amount": 4500000,
+      "outstanding_balance": 3200000,
+      "interest_rate": 8.75,
+      "emi": 38500,
+      "tenure_months": 240
+    }
+  ],
+  "goals": [
+    {
+      "name": "Aarav's Higher Education",
+      "target_amount": 3500000,
+      "target_year": 2030,
+      "priority": "critical"
+    },
+    {
+      "name": "Retirement Rajesh & Sunita",
+      "target_amount": 30000000,
+      "target_year": 2041,
+      "priority": "critical"
+    }
+  ]
+}
