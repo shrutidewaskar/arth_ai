@@ -1010,7 +1010,7 @@ export default function Page() {
               onClick={triggerSeedDemo} 
               className="bg-accent hover:bg-emerald-500 text-slate-950 hover:text-white text-xs md:text-sm font-black px-5 py-3 rounded-full transition shadow-xl uppercase tracking-widest"
             >
-              Load Rajesh Sharma Demo
+              Load Demo
             </button>
             <button 
               onClick={() => scrollToSection("sandbox")} 
