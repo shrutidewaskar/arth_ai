@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import text
 from typing import List, Dict, Any
 from decimal import Decimal
 import datetime

@@ -621,6 +621,21 @@ export default function Page() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [cfoMessages]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab) {
+        setActiveTab(tab);
+        setWorkspaceExpanded(true);
+        setTimeout(() => {
+          const el = document.getElementById("sandbox");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }, 300);
+      }
+    }
+  }, []);
+
   // Decision Center States
   const [decisionInput, setDecisionInput] = useState("");
   const [decisionResult, setDecisionResult] = useState<any>(null);
@@ -1489,6 +1504,13 @@ export default function Page() {
 
                     {activeTab === "ai_cfo" && (
                       <div className="flex flex-col h-[420px] justify-between">
+                        <div className="bg-emerald-50/40 border border-emerald-100/30 rounded-2xl px-4 py-2.5 mb-4 flex items-center gap-3">
+                          <Brain className="h-5 w-5 text-[#0B5D4B] shrink-0 animate-pulse" />
+                          <div className="text-[11px] text-left">
+                            <span className="font-extrabold text-[#0B5D4B] block">Powered by ArthAI Reasoning Engine</span>
+                            <span className="text-slate-500 font-bold block text-[10px] mt-0.5">Business Rules + Simulations + Memory + AI</span>
+                          </div>
+                        </div>
                         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
                           {cfoMessages.map((m, idx) => (
                             <div key={idx} className={`flex gap-4 max-w-xl ${m.sender === "user" ? "ml-auto flex-row-reverse" : ""}`}>
@@ -2099,9 +2121,9 @@ export default function Page() {
             <div>
               <h4 className="text-xs font-bold text-accent uppercase tracking-widest mb-6">Features</h4>
               <ul className="space-y-3 text-xs md:text-sm text-emerald-100 font-semibold">
-                <li><a href="#" className="hover:text-white">Tax Regime Planner</a></li>
-                <li><a href="#" className="hover:text-white">Gold Asset Tracking</a></li>
-                <li><a href="#" className="hover:text-white">Decision Simulation</a></li>
+                <li><a href="/tax-regime-planner" className="hover:text-white">Tax Regime Planner</a></li>
+                <li><a href="/gold-asset-tracking" className="hover:text-white">Gold Asset Tracking</a></li>
+                <li><a href="/decision-simulation" className="hover:text-white">Decision Simulation</a></li>
               </ul>
             </div>
             <div>
