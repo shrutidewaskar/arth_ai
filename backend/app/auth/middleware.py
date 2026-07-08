@@ -67,7 +67,6 @@ async def get_current_user(
             detail=f"Token verification failed: {str(e)}"
         )
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Authentication error: {str(e)}"
-        )
+        import traceback
+        traceback.print_exc()
+        raise

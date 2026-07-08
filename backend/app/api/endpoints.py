@@ -141,8 +141,8 @@ async def seed_demo_data(
     # 5. Clear & Seed Insurance
     await db.execute(text(f"DELETE FROM insurance WHERE user_id = '{current_user.id}'"))
     insurances = [
-        Insurance(user_id=current_user.id, policy_name="Star Health Optima", provider="Star Health", coverage=Decimal("1000000.00"), premium=Decimal("20000.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=45)),
-        Insurance(user_id=current_user.id, policy_name="ICICI Lombard Car Shield", provider="ICICI Lombard", coverage=Decimal("1500000.00"), premium=Decimal("18000.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=90))
+        Insurance(user_id=current_user.id, policy_name="Star Health Optima", provider="Star Health", coverage=Decimal("1000000.00"), premium=Decimal("20000.00"), renewal_date=datetime.datetime.utcnow() + datetime.timedelta(days=45)),
+        Insurance(user_id=current_user.id, policy_name="ICICI Lombard Car Shield", provider="ICICI Lombard", coverage=Decimal("1500000.00"), premium=Decimal("18000.00"), renewal_date=datetime.datetime.utcnow() + datetime.timedelta(days=90))
     ]
     for ins in insurances:
         db.add(ins)
@@ -150,8 +150,8 @@ async def seed_demo_data(
     # 6. Clear & Seed Subscriptions
     await db.execute(text(f"DELETE FROM subscriptions WHERE user_id = '{current_user.id}'"))
     subscriptions = [
-        Subscription(user_id=current_user.id, service="Netflix Premium", amount=Decimal("649.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=12)),
-        Subscription(user_id=current_user.id, service="Amazon Prime", amount=Decimal("1499.00"), renewal_date=datetime.date.today() + datetime.timedelta(days=28))
+        Subscription(user_id=current_user.id, service="Netflix Premium", amount=Decimal("649.00"), renewal_date=datetime.datetime.utcnow() + datetime.timedelta(days=12)),
+        Subscription(user_id=current_user.id, service="Amazon Prime", amount=Decimal("1499.00"), renewal_date=datetime.datetime.utcnow() + datetime.timedelta(days=28))
     ]
     for s in subscriptions:
         db.add(s)
@@ -175,8 +175,15 @@ async def seed_demo_data(
     for m in memories:
         db.add(m)
 
-    await db.commit()
-    return {"status": "seeded", "message": "Demo mode initialized for Rajesh Sharma."}
+    try:
+        await db.commit()
+        return {
+            "status": "seeded",
+            "message": "Demo mode initialized for Rajesh Sharma."
+        }
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/brief")
 async def get_daily_brief(
