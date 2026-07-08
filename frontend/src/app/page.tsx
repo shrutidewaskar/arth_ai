@@ -66,6 +66,8 @@ import {
   Cell
 } from "recharts";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
 // --- Type Declarations & Mock Data ---
 interface Message {
   sender: "user" | "ai";
@@ -660,14 +662,14 @@ export default function Page() {
       setLoading(true);
       
       // 1. Fetch Profile
-      const profRes = await fetch("http://localhost:8000/api/v1/profile");
+      const profRes = await fetch(`${API_BASE}/api/v1/profile`);
       if (profRes.ok) {
         const profJson = await profRes.json();
         setProfileData(profJson);
       }
       
       // 2. Fetch Brief
-      const briefRes = await fetch("http://localhost:8000/api/v1/brief");
+      const briefRes = await fetch(`${API_BASE}/api/v1/brief`);
       if (briefRes.ok) {
         const briefJson = await briefRes.json();
         setBriefData(briefJson);
@@ -675,28 +677,28 @@ export default function Page() {
       }
 
       // 3. Fetch Goals
-      const goalsRes = await fetch("http://localhost:8000/api/v1/goals");
+      const goalsRes = await fetch(`${API_BASE}/api/v1/goals`);
       if (goalsRes.ok) {
         const goalsJson = await goalsRes.json();
         setGoals(goalsJson);
       }
 
       // 4. Fetch Investments
-      const invRes = await fetch("http://localhost:8000/api/v1/investments");
+      const invRes = await fetch(`${API_BASE}/api/v1/investments`);
       if (invRes.ok) {
         const invJson = await invRes.json();
         setInvestments(invJson);
       }
 
       // 5. Fetch Insurance
-      const insRes = await fetch("http://localhost:8000/api/v1/insurance");
+      const insRes = await fetch(`${API_BASE}/api/v1/insurance`);
       if (insRes.ok) {
         const insJson = await insRes.json();
         setInsurance(insJson);
       }
 
       // 6. Fetch Insights
-      const insightsRes = await fetch("http://localhost:8000/api/v1/insights");
+      const insightsRes = await fetch(`${API_BASE}/api/v1/insights`);
       if (insightsRes.ok) {
         const insightsJson = await insightsRes.json();
         setInsights(insightsJson);
@@ -715,7 +717,7 @@ export default function Page() {
   const triggerSeedDemo = async () => {
     try {
       setLoading(true);
-      await fetch("http://localhost:8000/api/v1/demo/seed", { method: "POST" });
+      await fetch(`${API_BASE}/api/v1/demo/seed`, { method: "POST" });
       await fetchBackendData();
       setShowBriefModal(true);
     } catch (err) {
@@ -765,7 +767,7 @@ export default function Page() {
     setCfoMessages(prev => [...prev, { sender: "ai", text: "Compiling financial context...", timestamp: "Just now" }]);
     
     try {
-      const response = await fetch("http://localhost:8000/api/v1/chat/stream", {
+      const response = await fetch(`${API_BASE}/api/v1/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: userText })
@@ -838,7 +840,7 @@ export default function Page() {
     setDecisionResult(null);
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/decision", {
+      const response = await fetch(`${API_BASE}/api/v1/decision`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: decisionInput })
@@ -871,7 +873,7 @@ export default function Page() {
     setSimLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/simulate", {
+      const response = await fetch(`${API_BASE}/api/v1/simulate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scenario: scenario })
