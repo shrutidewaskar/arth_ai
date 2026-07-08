@@ -66,7 +66,7 @@ class OpenAIService:
             # Fallback mock streaming generator for sandbox testing without real API key
             breakdown = rules_output.get("financial_health_score_breakdown", {})
             fallback_text = (
-                f"💡 **ArthAI CFO Response (Sandboxed fallback):**\n\n"
+                f"### 📊 ArthAI Financial Analysis\n\n"
                 f"### 🛡️ Financial Health Score: **{rules_output.get('financial_health_score', 75)}/100**\n"
                 f"* **Savings (25%)**: {breakdown.get('savings', 0.0)}/25\n"
                 f"* **Debt (20%)**: {breakdown.get('debt', 0.0)}/20\n"
