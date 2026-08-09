@@ -649,6 +649,7 @@ export default function Page() {
   const [simLoading, setSimLoading] = useState(false);
 
   // Secure Vault States
+  const [vaultDocuments, setVaultDocuments] = useState<any[]>([]);
   const [vaultMessages, setVaultMessages] = useState<Message[]>([
     { sender: "ai", text: "Vault System Active. I have processed your Salary Slips, Aadhaar, and HDFC Home Loan contract. Ask me metadata questions (e.g., 'When does my home loan lock-in end?')", timestamp: "18:45" }
   ]);
@@ -660,6 +661,17 @@ export default function Page() {
   const fetchBackendData = async () => {
     try {
       setLoading(true);
+      
+      // Fetch documents list from backend
+      try {
+        const docRes = await fetch(`${API_BASE}/api/v1/documents`);
+        if (docRes.ok) {
+          const docJson = await docRes.json();
+          setVaultDocuments(docJson);
+        }
+      } catch (err) {
+        console.error("Error loading documents:", err);
+      }
       
       // 1. Fetch Profile
       const profRes = await fetch(`${API_BASE}/api/v1/profile`);
@@ -1820,27 +1832,113 @@ export default function Page() {
                       <div className="space-y-6">
                         <div className="flex items-center justify-between border-b pb-3">
                           <h3 className="font-display text-base font-bold text-slate-700">Secure Document Vault</h3>
-                          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">Supabase Storage Active</span>
+                          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">Document Intelligence Active</span>
                         </div>
+                        
+                        {/* Interactive Upload Widget */}
+                        <div className="bg-emerald-50/40 border border-dashed border-emerald-300 rounded-xl p-6 text-center space-y-3">
+                          <p className="text-xs text-slate-600 font-medium">Upload financial PDF statements to extract parameters securely</p>
+                          <input 
+                            type="file" 
+                            accept=".pdf" 
+                            id="pdf-vault-uploader"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              
+                              const formData = new FormData();
+                              formData.append("file", file);
+                              
+                              try {
+                                alert(`Uploading & Processing ${file.name}...`);
+                                const res = await fetch(`${API_BASE}/api/v1/documents/upload`, {
+                                  method: "POST",
+                                  body: formData
+                                });
+                                if (!res.ok) {
+                                  const errData = await res.json();
+                                  throw new Error(errData.detail || "Upload failed");
+                                }
+                                const data = await res.json();
+                                alert(`Successfully processed! Type: ${data.document_type}. Facts: ${data.facts_extracted}. Chunks: ${data.chunks_created}`);
+                                fetchBackendData();
+                              } catch (err: any) {
+                                alert(`Processing Error: ${err.message}`);
+                              }
+                            }}
+                            className="hidden" 
+                          />
+                          <label htmlFor="pdf-vault-uploader" className="cursor-pointer inline-flex items-center px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-bold hover:bg-emerald-800 transition">
+                            Upload Home Loan PDF Statement
+                          </label>
+                          <p className="text-[9px] text-slate-400">PDF documents only. Data stays privately encrypted.</p>
+                        </div>
+
                         <div className="space-y-3">
-                          {[
-                            { name: "HDFC_Home_Loan_Agreement.pdf", type: "Contract", size: "2.4 MB" },
-                            { name: "Star_Health_Policy_Oct2025.pdf", type: "Insurance", size: "1.8 MB" },
-                            { name: "SalarySlip_June2026.pdf", type: "Income", size: "850 KB" }
-                          ].map((doc, idx) => (
-                            <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <FolderOpen className="h-5 w-5 text-emerald-700" />
-                                <div>
-                                  <p className="text-xs font-black text-slate-800">{doc.name}</p>
-                                  <p className="text-[9px] text-slate-450 font-bold uppercase">{doc.type} | {doc.size}</p>
+                          {vaultDocuments.length === 0 ? (
+                            <p className="text-xs text-slate-400 text-center py-4">No documents stored in vault yet.</p>
+                          ) : (
+                            vaultDocuments.map((doc, idx) => (
+                              <div key={doc.id || idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <FolderOpen className="h-5 w-5 text-emerald-700" />
+                                  <div>
+                                    <p className="text-xs font-black text-slate-800">{doc.file_name}</p>
+                                    <p className="text-[9px] text-slate-450 font-bold uppercase">{doc.document_type} | {Math.round(doc.file_size / 1024)} KB | {doc.status}</p>
+                                    <p className="text-[9px] text-emerald-700 font-bold">Extracted Facts Count: {doc.facts_count || 0}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    onClick={async () => {
+                                      try {
+                                        const res = await fetch(`${API_BASE}/api/v1/documents/${doc.id}/url`);
+                                        if (res.ok) {
+                                          const data = await res.json();
+                                          alert(`Mock Signed URL: ${data.url}`);
+                                        }
+                                      } catch (err) {
+                                        alert("Failed to get signed URL");
+                                      }
+                                    }} 
+                                    className="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition"
+                                  >
+                                    View
+                                  </button>
+                                  <span className="text-slate-300">|</span>
+                                  <button 
+                                    onClick={() => {
+                                      setActiveTab("overview");
+                                      setWorkspaceExpanded(true);
+                                      setCfoInput("What is my outstanding loan and can I prepay it?");
+                                    }}
+                                    className="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition"
+                                  >
+                                    Ask ArthAI
+                                  </button>
+                                  <span className="text-slate-300">|</span>
+                                  <button 
+                                    onClick={async () => {
+                                      if (confirm("Are you sure you want to delete this document?")) {
+                                        try {
+                                          const res = await fetch(`${API_BASE}/api/v1/documents/${doc.id}`, { method: "DELETE" });
+                                          if (res.ok) {
+                                            alert("Document deleted successfully");
+                                            fetchBackendData();
+                                          }
+                                        } catch (err) {
+                                          alert("Failed to delete document");
+                                        }
+                                      }
+                                    }} 
+                                    className="text-xs font-bold text-rose-600 hover:text-rose-700 transition"
+                                  >
+                                    Delete
+                                  </button>
                                 </div>
                               </div>
-                              <button onClick={() => alert("Signed URL generated for document download!")} className="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition">
-                                Download
-                              </button>
-                            </div>
-                          ))}
+                            ))
+                          )}
                         </div>
                       </div>
                     )}

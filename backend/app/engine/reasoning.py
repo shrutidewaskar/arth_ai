@@ -42,6 +42,35 @@ class ReasoningOrchestrator:
         # 2. Context Building (Unified financial profile context)
         context = await self.context_builder.build_context(user_id, db)
         
+        # Sprint 6 integration: Retrieve relevant document chunks and facts dynamically based on query intent
+        from app.documents.retriever import DocumentRetriever
+        from app.models.financials import DocumentFinancialFact
+        from sqlalchemy import select
+        
+        # Decide if query requires document retrieval
+        document_keywords = ["outstanding", "interest rate", "emi", "prepay", "premium", "coverage", "statement", "policy", "loan", "salary", "gross", "deductions", "credits", "debits"]
+        should_retrieve = any(kw in user_query.lower() for kw in document_keywords)
+        
+        document_chunks = []
+        if should_retrieve:
+            retriever = DocumentRetriever()
+            document_chunks = await retriever.retrieve_relevant_chunks(db, user_id, user_query)
+        
+        facts_res = await db.execute(select(DocumentFinancialFact).filter(DocumentFinancialFact.user_id == user_id))
+        all_facts = facts_res.scalars().all()
+        structured_facts = [{
+            "fact_type": f.fact_type,
+            "fact_key": f.fact_key,
+            "fact_value": f.fact_value,
+            "confidence": float(f.confidence),
+            "source_page": f.source_page
+        } for f in all_facts]
+        
+        context["document_context"] = {
+            "retrieved_chunks": document_chunks,
+            "structured_facts": structured_facts
+        }
+        
         # 3. Memory Retrieval
         memories = await self.memory_engine.get_relevant_memories(user_id, user_query, db)
         

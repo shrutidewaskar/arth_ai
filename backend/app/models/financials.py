@@ -157,7 +157,6 @@ class Subscription(Base):
     billing_cycle = Column(String(100), default="Monthly")
     renewal_date = Column(DateTime(timezone=True), nullable=True)
     active = Column(Boolean, default=True)
-    
     user = relationship("User", back_populates="subscriptions")
 
 class Document(Base):
@@ -171,7 +170,47 @@ class Document(Base):
     expiry_date = Column(DateTime(timezone=True), nullable=True)
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
     
+    # Sprint 6 extensions
+    file_name = Column(String(255), nullable=True)
+    mime_type = Column(String(100), nullable=True)
+    file_size = Column(Integer, nullable=True)
+    status = Column(String(50), default="UPLOADED") # UPLOADED, PROCESSING, PROCESSED, FAILED
+    extracted_text = Column(Text, nullable=True)
+    processed_at = Column(DateTime(timezone=True), nullable=True)
+    error_message = Column(Text, nullable=True)
+    
     user = relationship("User", back_populates="documents")
+    financial_facts = relationship("DocumentFinancialFact", back_populates="document", cascade="all, delete-orphan")
+    chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
+
+class DocumentFinancialFact(Base):
+    __tablename__ = "document_financial_facts"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    fact_type = Column(String(100), nullable=False)
+    fact_key = Column(String(100), nullable=False)
+    fact_value = Column(String(255), nullable=True)
+    confidence = Column(Numeric(5, 2), default=1.00)
+    source_page = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    document = relationship("Document", back_populates="financial_facts")
+
+class DocumentChunk(Base):
+    __tablename__ = "document_chunks"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    page_number = Column(Integer, nullable=False)
+    chunk_index = Column(Integer, nullable=False)
+    content = Column(Text, nullable=False)
+    embedding = Column(Text, nullable=True) # Binary or string fallback
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    document = relationship("Document", back_populates="chunks")
 
 class AIMemory(Base):
     __tablename__ = "ai_memories"

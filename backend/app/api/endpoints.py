@@ -636,34 +636,195 @@ async def delete_memory(
     await db.flush()
     return {"status": "deleted"}
 
-# --- Documents Upload & Analyze ---
+# --- Documents Upload & Intelligence Operations ---
 @router.post("/documents/upload")
 async def upload_document(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
+    import uuid
+    import shutil
+    import os
+    from app.models.financials import Document
+    from app.documents.processor import DocumentProcessor
+
+    # 1. Validate PDF restriction
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported for Sprint 6 MVP.")
+        
+    doc_id = uuid.uuid4()
+    
+    # Secure Vault path structure: {user_id}/{document_id}/{filename}
+    secure_dir = os.path.abspath(f"./storage/financial-documents/{current_user.id}/{doc_id}")
+    os.makedirs(secure_dir, exist_ok=True)
+    temp_file_path = os.path.join(secure_dir, file.filename)
+    
+    # Save file content locally (Mocking Supabase Storage secure upload fallback)
+    with open(temp_file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    file_size = os.path.getsize(temp_file_path)
+    
+    # 2. Record initial metadata
+    doc = Document(
+        id=doc_id,
+        user_id=current_user.id,
+        document_type="OTHER",
+        storage_path=f"{current_user.id}/{doc_id}/{file.filename}",
+        file_name=file.filename,
+        mime_type=file.content_type or "application/pdf",
+        file_size=file_size,
+        status="UPLOADED"
+    )
+    db.add(doc)
+    await db.flush()
+    
+    # 3. Synchronous processing slice
+    processor = DocumentProcessor()
+    processed_doc = await processor.process_document(db, doc_id, temp_file_path, current_user.id)
+    
+    # Load chunks count
+    from app.models.financials import DocumentChunk, DocumentFinancialFact
+    chunks_res = await db.execute(select(DocumentChunk).filter(DocumentChunk.document_id == processed_doc.id))
+    chunks_count = len(chunks_res.scalars().all())
+    
+    facts_res = await db.execute(select(DocumentFinancialFact).filter(DocumentFinancialFact.document_id == processed_doc.id))
+    facts_count = len(facts_res.scalars().all())
+    
     return {
-        "filename": file.filename,
-        "status": "uploaded",
-        "storage_path": f"financial-documents/{current_user.id}/{file.filename}"
+        "document_id": str(processed_doc.id),
+        "status": processed_doc.status, # Keep uppercase return (e.g. PROCESSED)
+        "document_type": processed_doc.document_type,
+        "facts_extracted": facts_count,
+        "chunks_created": chunks_count
     }
 
-@router.post("/documents/analyze")
-async def analyze_document(
-    doc_in: Dict[str, Any],
-    current_user: User = Depends(get_current_user)
+@router.get("/documents")
+async def list_documents(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
-    doc_type = doc_in.get("document_type", "SalarySlip")
-    if doc_type == "SalarySlip":
-        return {
-            "status": "parsed",
-            "extracted_income": 204000.00,
-            "deductions": 18000.00,
-            "alerts": "Standard deductions matched."
-        }
+    from app.models.financials import Document
+    res = await db.execute(
+        select(Document).filter(Document.user_id == current_user.id).order_by(Document.uploaded_at.desc())
+    )
+    docs = res.scalars().all()
+    out = []
+    for d in docs:
+        # Count facts
+        from app.models.financials import DocumentFinancialFact
+        fact_res = await db.execute(select(DocumentFinancialFact).filter(DocumentFinancialFact.document_id == d.id))
+        facts_count = len(fact_res.scalars().all())
+        
+        out.append({
+            "id": str(d.id),
+            "file_name": d.file_name,
+            "document_type": d.document_type,
+            "status": d.status,
+            "file_size": d.file_size,
+            "uploaded_at": d.uploaded_at,
+            "facts_count": facts_count
+        })
+    return out
+
+@router.get("/documents/search")
+async def search_documents(
+    q: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.documents.retriever import DocumentRetriever
+    retriever = DocumentRetriever()
+    results = await retriever.retrieve_relevant_chunks(db, current_user.id, q)
+    return results
+
+@router.get("/documents/{document_id}")
+async def get_document(
+    document_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import uuid
+    from app.models.financials import Document, DocumentFinancialFact
+    
+    doc_uuid = uuid.UUID(document_id)
+    res = await db.execute(select(Document).filter(Document.id == doc_uuid, Document.user_id == current_user.id))
+    doc = res.scalars().first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found or access denied")
+        
+    facts_res = await db.execute(select(DocumentFinancialFact).filter(DocumentFinancialFact.document_id == doc.id))
+    facts = facts_res.scalars().all()
+    
+    # Load chunks count
+    from app.models.financials import DocumentChunk
+    chunks_res = await db.execute(select(DocumentChunk).filter(DocumentChunk.document_id == doc.id))
+    chunks_count = len(chunks_res.scalars().all())
+
+    facts_list = [{
+        "fact_type": f.fact_type,
+        "fact_key": f.fact_key,
+        "fact_value": f.fact_value,
+        "confidence": float(f.confidence),
+        "source_page": f.source_page
+    } for f in facts]
+    
     return {
-        "status": "parsed",
-        "renewal_date": (datetime.date.today() + datetime.timedelta(days=120)).isoformat(),
-        "provider": "ICICI Prudential",
-        "premium": 22500.00
+        "id": str(doc.id),
+        "file_name": doc.file_name,
+        "document_type": doc.document_type,
+        "status": doc.status,
+        "facts_extracted": len(facts),
+        "chunks_created": chunks_count,
+        "uploaded_at": doc.uploaded_at,
+        "processed_at": doc.processed_at,
+        "error_message": doc.error_message,
+        "extracted_facts": facts_list
     }
+
+@router.get("/documents/{document_id}/url")
+async def get_document_url(
+    document_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import uuid
+    from app.models.financials import Document
+    doc_uuid = uuid.UUID(document_id)
+    res = await db.execute(select(Document).filter(Document.id == doc_uuid, Document.user_id == current_user.id))
+    doc = res.scalars().first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    # Return mock signed URL pointing to local temp secure route
+    return {
+        "url": f"/api/v1/documents/view/{doc.id}?token=mock-signed-security-token-60m",
+        "expires_in": 3600
+    }
+
+@router.delete("/documents/{document_id}")
+async def delete_document(
+    document_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import uuid
+    import os
+    import shutil
+    from app.models.financials import Document
+    
+    doc_uuid = uuid.UUID(document_id)
+    res = await db.execute(select(Document).filter(Document.id == doc_uuid, Document.user_id == current_user.id))
+    doc = res.scalars().first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    # Delete local file
+    secure_dir = os.path.abspath(f"./storage/financial-documents/{current_user.id}/{doc.id}")
+    if os.path.exists(secure_dir):
+        shutil.rmtree(secure_dir)
+        
+    await db.delete(doc)
+    await db.flush()
+    return {"status": "deleted"}
