@@ -1837,7 +1837,7 @@ export default function Page() {
                         
                         {/* Interactive Upload Widget */}
                         <div className="bg-emerald-50/40 border border-dashed border-emerald-300 rounded-xl p-6 text-center space-y-3">
-                          <p className="text-xs text-slate-600 font-medium">Upload financial PDF statements to extract parameters securely</p>
+                          <p className="text-xs text-slate-600 font-medium">Upload financial PDFs (Salary Slips, Bank Statements, Insurance Policies, Loan Statements, ITRs)</p>
                           <input 
                             type="file" 
                             accept=".pdf" 
@@ -1869,9 +1869,9 @@ export default function Page() {
                             className="hidden" 
                           />
                           <label htmlFor="pdf-vault-uploader" className="cursor-pointer inline-flex items-center px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-bold hover:bg-emerald-800 transition">
-                            Upload Home Loan PDF Statement
+                            Upload Secure Financial Document
                           </label>
-                          <p className="text-[9px] text-slate-400">PDF documents only. Data stays privately encrypted.</p>
+                          <p className="text-[9px] text-slate-450">PDF files are parsed and associated with your secure database profile.</p>
                         </div>
 
                         <div className="space-y-3">
