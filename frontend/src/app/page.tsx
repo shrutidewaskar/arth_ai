@@ -1076,7 +1076,7 @@ export default function Page() {
                 onClick={() => scrollToSection("sandbox")} 
                 className="bg-primary hover:bg-[#074739] text-white font-bold px-9 py-5 rounded-full transition shadow-2xl shadow-primary/20 flex items-center gap-2.5 text-xs md:text-sm uppercase tracking-widest w-full sm:w-auto justify-center"
               >
-                Launch Sandbox Sandbox <ArrowRight className="h-5 w-5" />
+                Launch Simulation Sandbox <ArrowRight className="h-5 w-5" />
               </button>
             </div>
 
