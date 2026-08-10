@@ -2017,6 +2017,66 @@ export default function Page() {
                       </div>
                     )}
 
+                    {activeTab === "calendar" && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b pb-3">
+                          <h3 className="font-display text-base font-bold text-slate-700">Financial Calendar & Reminders</h3>
+                          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">Auto-sync Active</span>
+                        </div>
+                        <div className="space-y-3">
+                          {[
+                            { title: "Home Loan EMI Auto-Debit", date: "Oct 05, 2026", amount: "₹38,000", badge: "Loan Outflow", status: "Scheduled" },
+                            { title: "Star Health Premium Renewal", date: "Oct 15, 2026", amount: "₹20,000", badge: "Insurance", status: "Upcoming" },
+                            { title: "Vibe Mutual Fund SIP Allocation", date: "Oct 20, 2026", amount: "₹12,000", badge: "SIP Outlay", status: "Scheduled" },
+                            { title: "ITR Filing Deadline (Q2)", date: "Nov 30, 2026", amount: "Tax Cycle", badge: "Compliance", status: "Pending" }
+                          ].map((item, idx) => (
+                            <div key={idx} className="bg-slate-50 p-5 rounded-2xl border border-slate-150 flex justify-between items-center">
+                              <div>
+                                <span className="text-[9px] text-emerald-700 font-extrabold uppercase tracking-wider bg-emerald-50 px-2.5 py-0.5 rounded-full">{item.badge}</span>
+                                <h4 className="text-sm font-black text-slate-800 mt-2">{item.title}</h4>
+                                <p className="text-[10px] text-slate-400 font-bold mt-0.5">Due Date: {item.date}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm md:text-base font-black text-primary">{item.amount}</p>
+                                <span className="text-[10px] text-emerald-600 font-extrabold uppercase mt-0.5">{item.status}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === "subscriptions" && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b pb-3">
+                          <h3 className="font-display text-base font-bold text-slate-700">Recurring Household Bills & Subscriptions</h3>
+                          <span className="text-[10px] bg-amber-50 text-amber-700 px-3 py-1 rounded-full font-bold">2 overlapping items detected</span>
+                        </div>
+                        <div className="space-y-3">
+                          {[
+                            { service: "Broadband (Airtel Black)", amount: "₹1,200/mo", cycle: "Monthly", alert: false },
+                            { service: "Streaming Combo (Netflix & Prime)", amount: "₹950/mo", cycle: "Monthly", alert: true, details: "Overlapping plans detected" },
+                            { service: "GYM Membership (Cult.fit)", amount: "₹1,500/mo", cycle: "Monthly", alert: false },
+                            { service: "Newspaper & Milk delivery", amount: "₹550/mo", cycle: "Monthly", alert: false }
+                          ].map((item, idx) => (
+                            <div key={idx} className="bg-slate-50 p-5 rounded-2xl border border-slate-150 flex justify-between items-center">
+                              <div>
+                                <h4 className="text-sm font-black text-slate-800">{item.service}</h4>
+                                <p className="text-[10px] text-slate-400 font-bold mt-0.5">Billing: {item.cycle}</p>
+                                {item.alert && (
+                                  <span className="text-[9px] text-amber-700 font-extrabold uppercase bg-amber-50 px-2 py-0.5 rounded-full mt-1.5 inline-block">⚠️ {item.details}</span>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm md:text-base font-black text-primary">{item.amount}</p>
+                                <button className="text-[10px] text-rose-600 font-extrabold uppercase mt-0.5 hover:underline">Cancel Subs</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {activeTab === "insights" && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between border-b pb-3">
