@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { 
   Sparkles, 
@@ -1041,12 +1042,12 @@ export default function Page() {
             >
               Load Demo
             </button>
-            <button 
-              onClick={() => scrollToSection("sandbox")} 
-              className="bg-primary hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-7 py-3 rounded-full transition shadow-xl shadow-primary/10 uppercase tracking-widest"
+            <Link 
+              href="/register" 
+              className="bg-primary hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-7 py-3 rounded-full transition shadow-xl shadow-primary/10 uppercase tracking-widest flex items-center justify-center"
             >
               Get Started
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
