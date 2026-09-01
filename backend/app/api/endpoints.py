@@ -19,7 +19,11 @@ from app.schemas.financials import (
     GoalResponse, GoalCreate, GoalUpdate,
     InvestmentResponse, InvestmentCreate,
     InsuranceResponse, InsuranceCreate,
-    AIInsightResponse, DecisionSimulationResponse, DecisionSimulationCreate
+    AIInsightResponse, DecisionSimulationResponse, DecisionSimulationCreate,
+    IncomeSourceCreate, IncomeSourceResponse, IncomeSourceUpdate,
+    ExpenseCategoryCreate, ExpenseCategoryResponse, ExpenseCategoryUpdate,
+    AssetCreate, AssetResponse, AssetUpdate,
+    LiabilityCreate, LiabilityResponse, LiabilityUpdate
 )
 from app.engine.reasoning import ReasoningOrchestrator
 
@@ -67,6 +71,262 @@ async def get_profile(
         db.add(profile)
         await db.flush()
     return profile
+
+# --- Onboarding Status Route ---
+@router.get("/onboarding/status")
+async def get_onboarding_status(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Fetch Profile
+    prof_res = await db.execute(select(FinancialProfile).filter(FinancialProfile.user_id == current_user.id))
+    profile = prof_res.scalars().first()
+    has_profile = profile is not None and profile.age is not None and profile.age > 0 and profile.city is not None and len(profile.city.strip()) > 0
+
+    # Fetch incomes
+    inc_res = await db.execute(select(IncomeSource).filter(IncomeSource.user_id == current_user.id))
+    has_income = len(inc_res.scalars().all()) > 0
+
+    # Fetch expenses
+    exp_res = await db.execute(select(ExpenseCategory).filter(ExpenseCategory.user_id == current_user.id))
+    has_expenses = len(exp_res.scalars().all()) > 0
+
+    # Fetch assets / liabilities (financial position)
+    asset_res = await db.execute(select(Asset).filter(Asset.user_id == current_user.id))
+    liab_res = await db.execute(select(Liability).filter(Liability.user_id == current_user.id))
+    has_position = len(asset_res.scalars().all()) > 0 or len(liab_res.scalars().all()) > 0
+
+    # Fetch goals
+    goals_res = await db.execute(select(Goal).filter(Goal.user_id == current_user.id))
+    has_goals = len(goals_res.scalars().all()) > 0
+
+    is_complete = has_profile and has_income and has_expenses and has_position and has_goals
+
+    return {
+        "complete": is_complete,
+        "profile": has_profile,
+        "income": has_income,
+        "expenses": has_expenses,
+        "financial_position": has_position,
+        "goals": has_goals
+    }
+
+# --- Dashboard Summary Route ---
+@router.get("/dashboard/summary")
+async def get_dashboard_summary(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.rules_engine import BusinessRuleEngine
+
+    cb = ContextBuilder()
+    re = BusinessRuleEngine()
+
+    # 1. Build unified context via ContextBuilder
+    context = await cb.build_context(current_user.id, db)
+
+    # 2. Compute financial rules from BusinessRuleEngine
+    rules = re.compute_all_rules(
+        profile=context.get("profile", {}),
+        income_sources=context.get("incomes", []),
+        expense_categories=context.get("expenses", []),
+        assets=context.get("assets", []),
+        liabilities=context.get("liabilities", []),
+        goals=context.get("goals", []),
+        investments=context.get("investments", []),
+        insurance=context.get("insurance", []),
+        subscriptions=context.get("subscriptions", [])
+    )
+
+    # Compile structured dashboard response parameters
+    profile_data = context.get("profile", {})
+    incomes = context.get("incomes", [])
+    expenses = context.get("expenses", [])
+    assets = context.get("assets", [])
+    liabilities = context.get("liabilities", [])
+    goals_list = context.get("goals", [])
+    investments_list = context.get("investments", [])
+    insurance_list = context.get("insurance", [])
+    documents_list = context.get("documents", [])
+
+    total_income = sum(float(i.get("amount", 0)) for i in incomes)
+    total_expenses = sum(float(e.get("amount", 0)) for e in expenses)
+    total_emi = sum(float(l.get("emi", 0)) for l in liabilities)
+
+    total_invested = sum(float(inv.get("invested_amount", 0)) for inv in investments_list)
+    current_invested_value = sum(float(inv.get("current_value", 0)) for inv in investments_list)
+
+    # Safely compute progress metrics for each goal
+    goals_formatted = []
+    for g in goals_list:
+        target = float(g.get("target_amount", 0))
+        saved = float(g.get("saved_amount", 0))
+        progress = (saved / target * 100) if target > 0 else 0.0
+        goals_formatted.append({
+            "id": g.get("id"),
+            "goal_name": g.get("goal_name"),
+            "category": g.get("category"),
+            "target_amount": target,
+            "saved_amount": saved,
+            "monthly_contribution": float(g.get("monthly_contribution", 0)),
+            "target_date": g.get("target_date"),
+            "priority": g.get("priority"),
+            "progress_percentage": min(100.0, max(0.0, progress))
+        })
+
+    # Compile asset breakdown types
+    asset_types_found = {}
+    for a in assets:
+        atype = a.get("asset_type", "Other")
+        val = float(a.get("current_value", 0))
+        asset_types_found[atype] = asset_types_found.get(atype, 0.0) + val
+
+    asset_breakdown = [{"type": k, "label": k, "value": v} for k, v in asset_types_found.items()]
+
+    # Compile liability breakdown details
+    liability_breakdown = []
+    for l in liabilities:
+        liability_breakdown.append({
+            "loan_name": l.get("loan_name"),
+            "loan_type": l.get("loan_type"),
+            "outstanding": float(l.get("outstanding", 0)),
+            "interest_rate": float(l.get("interest_rate", 0)),
+            "emi": float(l.get("emi", 0))
+        })
+
+    return {
+        "profile": {
+            "name": current_user.full_name or "User",
+            "age": profile_data.get("age", 0),
+            "city": profile_data.get("city", ""),
+            "occupation": profile_data.get("occupation", ""),
+            "risk_appetite": profile_data.get("risk_appetite", "Moderate")
+        },
+        "financial_health": {
+            "score": rules.get("financial_health_score", 50),
+            "savings_rate_pct": rules.get("savings_rate_pct", 0.0),
+            "dti_ratio_pct": rules.get("dti_ratio_pct_gpu", rules.get("dti_ratio_pct", 0.0)),
+            "emergency_runway_months": rules.get("emergency_runway_months", 0.0)
+        },
+        "net_worth": {
+            "total_assets": rules.get("total_assets", 0.0),
+            "total_liabilities": rules.get("total_liabilities", 0.0),
+            "net_worth": rules.get("net_worth", 0.0),
+            "asset_breakdown": asset_breakdown,
+            "liability_breakdown": liability_breakdown
+        },
+        "cash_flow": {
+            "monthly_income": total_income,
+            "monthly_expenses": total_expenses,
+            "monthly_emi": total_emi,
+            "monthly_investments": sum(float(i.get("current_value", 0)) for i in investments_list),
+            "monthly_surplus": total_income - total_expenses - total_emi
+        },
+        "debt": {
+            "total_outstanding": rules.get("total_liabilities", 0.0),
+            "monthly_emi": total_emi,
+            "dti_ratio_pct": rules.get("dti_ratio_pct", 0.0)
+        },
+        "goals": goals_formatted,
+        "investments": {
+            "total_invested": total_invested,
+            "current_value": current_invested_value
+        },
+        "insurance": {
+            "count": len(insurance_list)
+        },
+        "documents": {
+            "count": len(documents_list)
+        }
+    }
+
+# --- Financial Diagnosis Route ---
+@router.get("/financial-diagnosis")
+async def get_financial_diagnosis(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.rules_engine import BusinessRuleEngine
+    from app.engine.financial_diagnosis import FinancialDiagnosisEngine
+
+    cb = ContextBuilder()
+    re = BusinessRuleEngine()
+    de = FinancialDiagnosisEngine()
+
+    # 1. Fetch user scoped context
+    context = await cb.build_context(current_user.id, db)
+
+    # 2. Compute financial rules
+    rules = re.compute_all_rules(
+        profile=context.get("profile", {}),
+        income_sources=context.get("incomes", []),
+        expense_categories=context.get("expenses", []),
+        assets=context.get("assets", []),
+        liabilities=context.get("liabilities", []),
+        goals=context.get("goals", []),
+        investments=context.get("investments", []),
+        insurance=context.get("insurance", []),
+        subscriptions=context.get("subscriptions", [])
+    )
+
+    # 3. Generate diagnosis report
+    diagnosis = de.analyze_financials(rules, context)
+    return diagnosis
+
+# --- Onboarding Calculations Route ---
+@router.post("/onboarding/calculate-metrics")
+async def calculate_onboarding_metrics(
+    payload: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+):
+    # Formulate temporary model inputs using business rule parameters
+    profile = {
+        "monthly_income": payload.get("monthly_income", 0),
+        "monthly_expenses": payload.get("monthly_expenses", 0),
+        "monthly_savings": payload.get("monthly_savings", 0),
+        "emergency_fund": payload.get("emergency_fund", 0)
+    }
+    
+    from app.engine.rules_engine import BusinessRuleEngine
+    re = BusinessRuleEngine()
+    
+    metrics = re.compute_all_rules(
+        profile=profile,
+        income_sources=payload.get("incomes", []),
+        expense_categories=payload.get("expenses", []),
+        assets=payload.get("assets", []),
+        liabilities=payload.get("liabilities", []),
+        goals=payload.get("goals", []),
+        investments=[],
+        insurance=[],
+        subscriptions=[]
+    )
+    
+    # Calculate simple DTI & surplus ratios strictly matching standard rules output format
+    monthly_income = payload.get("monthly_income", 0)
+    monthly_expenses = payload.get("monthly_expenses", 0)
+    total_assets = sum(float(a.get("current_value", 0)) for a in payload.get("assets", []))
+    total_liabilities = sum(float(l.get("outstanding", 0)) for l in payload.get("liabilities", []))
+    total_emis = sum(float(l.get("emi", 0)) for l in payload.get("liabilities", []))
+    
+    surplus = monthly_income - monthly_expenses - total_emis
+    savings_rate = (surplus / monthly_income * 100) if monthly_income > 0 else 0
+    dti_ratio = (total_emis / monthly_income * 100) if monthly_income > 0 else 0
+    
+    return {
+        "income": monthly_income,
+        "expenses": monthly_expenses + total_emis,
+        "surplus": surplus,
+        "savingsRate": max(0.0, savings_rate),
+        "assets": total_assets,
+        "liabilities": total_liabilities,
+        "netWorth": total_assets - total_liabilities,
+        "dti": max(0.0, dti_ratio),
+        "emergency_runway_months": metrics.get("emergency_runway_months", 0.0),
+        "financial_health_score": metrics.get("financial_health_score", 50)
+    }
 
 @router.put("/profile", response_model=FinancialProfileResponse)
 async def update_profile(
@@ -265,6 +525,174 @@ async def get_cashflow_projection(current_user: User = Depends(get_current_user)
         "curve": [{"month": m, "accumulated_savings": base_savings * m} for m in range(1, 13)]
     }
 
+# --- Income Sources Routes ---
+@router.get("/incomes", response_model=List[IncomeSourceResponse])
+async def get_incomes(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(IncomeSource).filter(IncomeSource.user_id == current_user.id))
+    return res.scalars().all()
+
+@router.post("/incomes", response_model=IncomeSourceResponse)
+async def create_income(
+    income_in: IncomeSourceCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Idempotent check: query by matching source name
+    res = await db.execute(select(IncomeSource).filter(IncomeSource.user_id == current_user.id, IncomeSource.source_name == income_in.source_name))
+    income = res.scalars().first()
+    if income:
+        update_data = income_in.model_dump()
+        for k, v in update_data.items():
+            setattr(income, k, v)
+    else:
+        income = IncomeSource(user_id=current_user.id, **income_in.model_dump())
+        db.add(income)
+    await db.flush()
+    return income
+
+@router.delete("/incomes/{id}")
+async def delete_income(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(IncomeSource).filter(IncomeSource.id == id, IncomeSource.user_id == current_user.id))
+    income = res.scalars().first()
+    if not income:
+        raise HTTPException(status_code=404, detail="Income source not found")
+    await db.delete(income)
+    await db.flush()
+    return {"status": "deleted"}
+
+# --- Expense Categories Routes ---
+@router.get("/expenses", response_model=List[ExpenseCategoryResponse])
+async def get_expenses(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(ExpenseCategory).filter(ExpenseCategory.user_id == current_user.id))
+    return res.scalars().all()
+
+@router.post("/expenses", response_model=ExpenseCategoryResponse)
+async def create_expense(
+    expense_in: ExpenseCategoryCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Idempotent check: query by category
+    res = await db.execute(select(ExpenseCategory).filter(ExpenseCategory.user_id == current_user.id, ExpenseCategory.category == expense_in.category))
+    expense = res.scalars().first()
+    if expense:
+        update_data = expense_in.model_dump()
+        for k, v in update_data.items():
+            setattr(expense, k, v)
+    else:
+        expense = ExpenseCategory(user_id=current_user.id, **expense_in.model_dump())
+        db.add(expense)
+    await db.flush()
+    return expense
+
+@router.delete("/expenses/{id}")
+async def delete_expense(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(ExpenseCategory).filter(ExpenseCategory.id == id, ExpenseCategory.user_id == current_user.id))
+    expense = res.scalars().first()
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense category not found")
+    await db.delete(expense)
+    await db.flush()
+    return {"status": "deleted"}
+
+# --- Assets Routes ---
+@router.get("/assets", response_model=List[AssetResponse])
+async def get_assets_list(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(Asset).filter(Asset.user_id == current_user.id))
+    return res.scalars().all()
+
+@router.post("/assets", response_model=AssetResponse)
+async def create_asset_item(
+    asset_in: AssetCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Idempotent check: query by asset name
+    res = await db.execute(select(Asset).filter(Asset.user_id == current_user.id, Asset.asset_name == asset_in.asset_name))
+    asset = res.scalars().first()
+    if asset:
+        update_data = asset_in.model_dump()
+        for k, v in update_data.items():
+            setattr(asset, k, v)
+    else:
+        asset = Asset(user_id=current_user.id, **asset_in.model_dump())
+        db.add(asset)
+    await db.flush()
+    return asset
+
+@router.delete("/assets/{id}")
+async def delete_asset(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(Asset).filter(Asset.id == id, Asset.user_id == current_user.id))
+    asset = res.scalars().first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+    await db.delete(asset)
+    await db.flush()
+    return {"status": "deleted"}
+
+# --- Liabilities Routes ---
+@router.get("/liabilities")
+async def get_liabilities_list(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(Liability).filter(Liability.user_id == current_user.id))
+    return res.scalars().all()
+
+@router.post("/liabilities", response_model=LiabilityResponse)
+async def create_liability_item(
+    liab_in: LiabilityCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Idempotent check: query by loan name
+    res = await db.execute(select(Liability).filter(Liability.user_id == current_user.id, Liability.loan_name == liab_in.loan_name))
+    liability = res.scalars().first()
+    if liability:
+        update_data = liab_in.model_dump()
+        for k, v in update_data.items():
+            setattr(liability, k, v)
+    else:
+        liability = Liability(user_id=current_user.id, **liab_in.model_dump())
+        db.add(liability)
+    await db.flush()
+    return liability
+
+@router.delete("/liabilities/{id}")
+async def delete_liability(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(Liability).filter(Liability.id == id, Liability.user_id == current_user.id))
+    liab = res.scalars().first()
+    if not liab:
+        raise HTTPException(status_code=404, detail="Liability not found")
+    await db.delete(liab)
+    await db.flush()
+    return {"status": "deleted"}
+
 # --- Goals Routes ---
 @router.get("/goals", response_model=List[GoalResponse])
 async def get_goals(
@@ -290,10 +718,86 @@ async def create_goal(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    goal = Goal(user_id=current_user.id, **goal_in.model_dump())
-    db.add(goal)
+    # Idempotent check: query by goal name
+    res = await db.execute(select(Goal).filter(Goal.user_id == current_user.id, Goal.goal_name == goal_in.goal_name))
+    goal = res.scalars().first()
+    if goal:
+        update_data = goal_in.model_dump()
+        for k, v in update_data.items():
+            setattr(goal, k, v)
+    else:
+        goal = Goal(user_id=current_user.id, **goal_in.model_dump())
+        db.add(goal)
     await db.flush()
     return goal
+
+@router.get("/goals/feasibility")
+async def get_goals_feasibility(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.goal_feasibility import GoalFeasibilityEngine
+
+    cb = ContextBuilder()
+    gfe = GoalFeasibilityEngine()
+
+    context = await cb.build_context(current_user.id, db)
+    goals = context.get("goals", [])
+    result = gfe.analyze_goals_feasibility(goals, context)
+    return result
+
+@router.post("/action-plans")
+async def get_action_plans(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.action_planning import ActionPlanningEngine
+
+    cb = ContextBuilder()
+    ape = ActionPlanningEngine()
+
+    context = await cb.build_context(current_user.id, db)
+    goals = context.get("goals", [])
+    result = ape.generate_action_plans(goals, context)
+    return result
+
+@router.post("/cfo/query")
+async def process_cfo_query(
+    payload: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.cfo_orchestrator import CFOOrchestrator
+    orchestrator = CFOOrchestrator()
+    query = payload.get("query", "")
+    result = await orchestrator.process_query(query, current_user.id, db)
+    return result
+
+@router.get("/goals/{goal_id}/feasibility")
+async def get_single_goal_feasibility(
+    goal_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.goal_feasibility import GoalFeasibilityEngine
+
+    cb = ContextBuilder()
+    gfe = GoalFeasibilityEngine()
+
+    context = await cb.build_context(current_user.id, db)
+    goals = context.get("goals", [])
+    
+    target_goal = [g for g in goals if str(g.get("id")) == goal_id]
+    if not target_goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+        
+    result = gfe.analyze_goals_feasibility(target_goal, context)
+    if result["goals"]:
+        return result["goals"][0]
+    raise HTTPException(status_code=404, detail="Goal analysis failed")
 
 @router.put("/goals/{id}", response_model=GoalResponse)
 async def update_goal(
@@ -432,21 +936,61 @@ async def get_financial_health(
 # --- Scenario Simulator Route ---
 @router.post("/simulate")
 async def simulate(
-    scenario: Dict[str, Any],
-    current_user: User = Depends(get_current_user)
+    payload: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
-    selected = scenario.get("scenario", "buy_car")
-    if selected == "buy_car":
-        return {
-            "title": "Buy ₹15 Lakh Car Scenario",
-            "outcome": "Retirement Goal funding drops from 102% to 88% if cash is liquidated. Structured gold-loan collateral is recommended.",
-            "risk_score": 68
-        }
-    return {
-        "title": "Prepay Home Loan Scenario",
-        "outcome": "Home Loan tenure reduced by 32 months, saving ₹8.4 Lakhs in lifetime interest.",
-        "risk_score": 30
-    }
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.simulation_engine import SimulationEngine
+
+    scenario_type = payload.get("type")
+    inputs = payload.get("parameters", {})
+
+    # Compatibility mode for legacy select calls
+    legacy_sel = payload.get("scenario")
+    if legacy_sel:
+        if legacy_sel == "buy_car":
+            scenario_type = "NEW_LIABILITY"
+            inputs = {
+                "principal": 1500000.0,
+                "interest_rate": 9.5,
+                "tenure_years": 5.0,
+                "asset_purchase_value": 1500000.0
+            }
+        elif legacy_sel == "prepay_loan":
+            scenario_type = "EXPENSE_CHANGE"
+            inputs = {
+                "change_type": "absolute",
+                "value": -5000.0
+            }
+
+    if not scenario_type:
+        scenario_type = "INCOME_CHANGE"
+
+    cb = ContextBuilder()
+    se = SimulationEngine()
+
+    context = await cb.build_context(current_user.id, db)
+    result = se.simulate_scenario(scenario_type, inputs, context)
+    return result
+
+# --- Scenario Comparison Route ---
+@router.post("/simulate/compare")
+async def compare_scenarios(
+    payload: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.simulation_engine import SimulationEngine
+
+    options = payload.get("options", [])
+    cb = ContextBuilder()
+    se = SimulationEngine()
+
+    context = await cb.build_context(current_user.id, db)
+    result = se.compare_scenarios(options, context)
+    return result
 
 # --- Decision Center Route ---
 @router.post("/decision")

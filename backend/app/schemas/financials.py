@@ -220,6 +220,33 @@ class SubscriptionResponse(SubscriptionBase):
     class Config:
         from_attributes = True
 
+# --- Update schemas for subcomponents ---
+class IncomeSourceUpdate(BaseModel):
+    source_name: Optional[str] = None
+    type: Optional[str] = None
+    amount: Optional[Decimal] = None
+    frequency: Optional[str] = None
+    active: Optional[bool] = None
+
+class ExpenseCategoryUpdate(BaseModel):
+    category: Optional[str] = None
+    amount: Optional[Decimal] = None
+    essential: Optional[bool] = None
+    notes: Optional[str] = None
+
+class AssetUpdate(BaseModel):
+    asset_name: Optional[str] = None
+    asset_type: Optional[str] = None
+    current_value: Optional[Decimal] = None
+
+class LiabilityUpdate(BaseModel):
+    loan_name: Optional[str] = None
+    loan_type: Optional[str] = None
+    principal: Optional[Decimal] = None
+    outstanding: Optional[Decimal] = None
+    interest_rate: Optional[Decimal] = None
+    emi: Optional[Decimal] = None
+
 # --- Document Schemas ---
 class DocumentBase(BaseModel):
     document_type: str

@@ -12,17 +12,23 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db)
 ) -> User:
     if not authorization:
-        # For development/sandbox fallback, we provide a default seed user
-        # so testing without JWT headers works seamlessly.
-        default_user_email = "shruti@arthai.com"
-        result = await db.execute(select(User).filter(User.email == default_user_email))
-        user = result.scalars().first()
-        if not user:
-            user = User(email=default_user_email, full_name="Shruti Dewaskar")
-            db.add(user)
-            await db.flush()
-            # Commit handled by session dependency block
-        return user
+        if settings.ARTHAI_DEV_AUTH_FALLBACK:
+            # For development/sandbox fallback, we provide a default seed user
+            # so testing without JWT headers works seamlessly.
+            default_user_email = "shruti@arthai.com"
+            result = await db.execute(select(User).filter(User.email == default_user_email))
+            user = result.scalars().first()
+            if not user:
+                user = User(email=default_user_email, full_name="Shruti Dewaskar")
+                db.add(user)
+                await db.flush()
+                # Commit handled by session dependency block
+            return user
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization header missing"
+            )
         
     try:
         scheme, token = authorization.split(" ")
