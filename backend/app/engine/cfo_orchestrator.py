@@ -289,6 +289,12 @@ class CFOOrchestrator:
             parsed = json.loads(res.content)
             parsed["active_provider"] = res.provider
             parsed["active_model"] = res.model
+            parsed["response_source"] = res.source.value if hasattr(res.source, "value") else str(res.source)
+            parsed["usage"] = {
+                "input_tokens": res.input_tokens,
+                "output_tokens": res.output_tokens,
+                "total_tokens": (res.input_tokens + res.output_tokens) if (res.input_tokens is not None and res.output_tokens is not None) else None
+            }
             parsed["latency_ms"] = res.latency_ms
             return parsed
         except Exception:
@@ -304,5 +310,8 @@ class CFOOrchestrator:
                 "reasons": ["Engine calculations finished successfully."],
                 "tradeoffs": [],
                 "assumptions": ["Fallback mode activated"],
-                "evidence_used": evidence["capabilities_executed"]
+                "evidence_used": evidence["capabilities_executed"],
+                "response_source": "deterministic_fallback",
+                "active_provider": "gateway_fallback",
+                "active_model": "none"
             }

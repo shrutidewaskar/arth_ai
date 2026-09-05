@@ -626,7 +626,7 @@ async def run_tests():
     original_openai = gateway.providers["openai"]
     
     class FailingProvider:
-        async def generate(self, system, user, temp=0.0, max_t=2000):
+        async def generate(self, system_prompt: str, user_prompt: str, model=None, temperature: float = 0.0, max_tokens: int = 2000):
             raise RuntimeError("Primary API Outage Simulation")
 
     gateway.providers["openai"] = FailingProvider()

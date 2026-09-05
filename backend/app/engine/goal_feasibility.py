@@ -109,9 +109,8 @@ class GoalFeasibilityEngine:
             if target_date <= today:
                 months_remaining = 0
             else:
-                months_remaining = (target_date.year - today.year) * 12 + (target_date.month - today.month)
-                if months_remaining <= 0:
-                    months_remaining = 1
+                days_diff = (target_date - today).days
+                months_remaining = max(1, round(days_diff / 30.0))
 
             # Required contribution calculation
             if months_remaining > 0:

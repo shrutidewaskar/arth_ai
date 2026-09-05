@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 from datetime import datetime
 from uuid import UUID
 from decimal import Decimal
@@ -348,3 +348,24 @@ class DecisionSimulationResponse(DecisionSimulationBase):
 
     class Config:
         from_attributes = True
+
+# --- AI CFO Reasoning Schemas ---
+class CFOKeyFact(BaseModel):
+    label: str
+    value: Any
+    unit: Optional[str] = None
+
+class CFOAssessment(BaseModel):
+    label: str
+    severity: str
+
+class CFOResponseSchema(BaseModel):
+    answer: str
+    summary: str
+    key_facts: List[CFOKeyFact] = Field(default_factory=list)
+    assessment: CFOAssessment
+    recommendation: str
+    reasons: List[str] = Field(default_factory=list)
+    tradeoffs: List[str] = Field(default_factory=list)
+    assumptions: List[str] = Field(default_factory=list)
+    evidence_used: List[str] = Field(default_factory=list)

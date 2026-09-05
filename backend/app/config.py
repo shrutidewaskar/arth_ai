@@ -14,10 +14,10 @@ class Settings(BaseSettings):
     
     # AI Engine
     OPENAI_API_KEY: str = Field(default="sk-dummy-key", validation_alias="OPENAI_API_KEY")
-    LLM_PROVIDER: str = Field(default="openai", validation_alias="LLM_PROVIDER")
-    LLM_MODEL: str = Field(default="gpt-4o", validation_alias="LLM_MODEL")
+    LLM_PROVIDER: str = Field(default="gemini", validation_alias="LLM_PROVIDER")
+    LLM_MODEL: str = Field(default="gemini-2.5-flash", validation_alias="LLM_MODEL")
     LLM_FALLBACK_PROVIDER: str = Field(default="groq", validation_alias="LLM_FALLBACK_PROVIDER")
-    LLM_FALLBACK_MODEL: str = Field(default="llama3-70b-8192", validation_alias="LLM_FALLBACK_MODEL")
+    LLM_FALLBACK_MODEL: str = Field(default="llama-3.3-70b-versatile", validation_alias="LLM_FALLBACK_MODEL")
     GEMINI_API_KEY: str = Field(default="sk-dummy-key", validation_alias="GEMINI_API_KEY")
     GROQ_API_KEY: str = Field(default="sk-dummy-key", validation_alias="GROQ_API_KEY")
     OPENROUTER_API_KEY: str = Field(default="sk-dummy-key", validation_alias="OPENROUTER_API_KEY")
