@@ -112,8 +112,20 @@ export default function RegisterPage() {
                 <span className="block font-black text-slate-700 mt-1">{email}</span>
               </p>
               <p className="text-[11px] text-slate-400 font-bold leading-normal pt-2">
-                Click the confirmation link inside the email to verify your email and activate your personal dashboard.
+                Click the confirmation link inside the email to verify your account and access your personal dashboard.
               </p>
+
+              <div className="pt-4 border-t border-slate-100 space-y-3">
+                <p className="text-xs text-slate-500 font-semibold">
+                  Didn't receive the email or link expired?
+                </p>
+                <Link
+                  href={`/auth/verify-error?error=resend_prompt`}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+                >
+                  Resend verification link <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
             </motion.div>
           ) : (
             <form onSubmit={handleRegister} className="space-y-5">

@@ -70,6 +70,7 @@ async def get_profile(
         )
         db.add(profile)
         await db.flush()
+        await db.refresh(profile)
     return profile
 
 # --- Onboarding Status Route ---
@@ -344,6 +345,7 @@ async def update_profile(
         setattr(profile, key, val)
         
     await db.flush()
+    await db.refresh(profile)
     return profile
 
 # --- Demo & AI Brief Routes ---

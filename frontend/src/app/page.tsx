@@ -239,6 +239,34 @@ export default function Page() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
+    // Check if URL contains auth error parameters from a direct Supabase redirect
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const error = url.searchParams.get("error");
+      const errorCode = url.searchParams.get("error_code");
+      const errorDescription = url.searchParams.get("error_description");
+      
+      // Also check URL hash if redirected with fragment
+      let hashError = null;
+      let hashErrorCode = null;
+      let hashErrorDesc = null;
+      if (url.hash) {
+        const hashParams = new URLSearchParams(url.hash.substring(1));
+        hashError = hashParams.get("error");
+        hashErrorCode = hashParams.get("error_code");
+        hashErrorDesc = hashParams.get("error_description");
+      }
+
+      if (error || errorCode || hashError || hashErrorCode) {
+        const targetError = error || hashError;
+        const targetCode = errorCode || hashErrorCode;
+        const targetDesc = errorDescription || hashErrorDesc;
+        const dest = `/auth/verify-error?error=${encodeURIComponent(targetError || "")}&error_code=${encodeURIComponent(targetCode || "")}&error_description=${encodeURIComponent(targetDesc || "")}`;
+        router.replace(dest);
+        return;
+      }
+    }
+
     // Check if user has active session to show Go to Dashboard button
     const checkSession = async () => {
       const supabase = createClient();
@@ -248,7 +276,7 @@ export default function Page() {
       }
     };
     checkSession();
-  }, []);
+  }, [router]);
 
   const runDemoQuery = (idx: number) => {
     setDemoQuery(idx);
