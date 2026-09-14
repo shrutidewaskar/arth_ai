@@ -29,10 +29,19 @@ class BusinessRuleEngine:
         subscriptions: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         
-        monthly_income = Decimal(str(profile.get("monthly_income", 0)))
-        monthly_expenses = Decimal(str(profile.get("monthly_expenses", 0)))
-        monthly_savings = Decimal(str(profile.get("monthly_savings", 0)))
+        # Prefer sub-entity aggregations if profile monthly values are unset (or 0)
+        calc_income = sum(Decimal(str(i.get("amount", 0))) for i in income_sources)
+        calc_expenses = sum(Decimal(str(e.get("amount", 0))) for e in expense_categories)
+        total_emis = sum(Decimal(str(l.get("emi", 0))) for l in liabilities)
+
+        prof_inc = Decimal(str(profile.get("monthly_income", 0)))
+        prof_exp = Decimal(str(profile.get("monthly_expenses", 0)))
+        prof_sav = Decimal(str(profile.get("monthly_savings", 0)))
         emergency_fund = Decimal(str(profile.get("emergency_fund", 0)))
+
+        monthly_income = prof_inc if prof_inc > 0 else calc_income
+        monthly_expenses = prof_exp if prof_exp > 0 else (calc_expenses + total_emis)
+        monthly_savings = prof_sav if prof_sav > 0 else max(Decimal("0.00"), monthly_income - monthly_expenses)
         
         # 1. Net Worth
         total_assets = sum(Decimal(str(a.get("current_value", 0))) for a in assets)
@@ -42,6 +51,7 @@ class BusinessRuleEngine:
         # 2. Savings Rate & Burn Rate
         savings_rate = calculate_savings_ratio(monthly_savings, monthly_income)
         monthly_burn_rate = float(monthly_expenses)
+
         
         # 3. Debt to Income Ratio (DTI)
         total_emis = sum(Decimal(str(l.get("emi", 0))) for l in liabilities)

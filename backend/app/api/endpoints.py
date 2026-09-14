@@ -23,12 +23,181 @@ from app.schemas.financials import (
     IncomeSourceCreate, IncomeSourceResponse, IncomeSourceUpdate,
     ExpenseCategoryCreate, ExpenseCategoryResponse, ExpenseCategoryUpdate,
     AssetCreate, AssetResponse, AssetUpdate,
-    LiabilityCreate, LiabilityResponse, LiabilityUpdate
+    LiabilityCreate, LiabilityResponse, LiabilityUpdate,
+    AttentionResponse, FinancialPulseResponse
 )
 from app.engine.reasoning import ReasoningOrchestrator
 
 router = APIRouter()
 orchestrator = ReasoningOrchestrator()
+
+# --- Attention Aggregator & Financial Pulse Routes ---
+@router.get("/attention", response_model=AttentionResponse)
+async def get_attention(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.rules_engine import BusinessRuleEngine
+    from app.engine.financial_diagnosis import FinancialDiagnosisEngine
+    from app.engine.goal_feasibility import GoalFeasibilityEngine
+    from app.engine.action_planning import ActionPlanningEngine
+    from app.engine.attention_aggregator import AttentionAggregator
+
+    cb = ContextBuilder()
+    re = BusinessRuleEngine()
+    de = FinancialDiagnosisEngine()
+    gfe = GoalFeasibilityEngine()
+    ape = ActionPlanningEngine()
+    aggregator = AttentionAggregator()
+
+    # 1. Fetch user scoped context snapshot
+    context = await cb.build_context(current_user.id, db)
+
+    # 2. Compute deterministic rules
+    rules = re.compute_all_rules(
+        profile=context.get("profile", {}),
+        income_sources=context.get("incomes", []),
+        expense_categories=context.get("expenses", []),
+        assets=context.get("assets", []),
+        liabilities=context.get("liabilities", []),
+        goals=context.get("goals", []),
+        investments=context.get("investments", []),
+        insurance=context.get("insurance", []),
+        subscriptions=context.get("subscriptions", [])
+    )
+
+    # 3. Compute specialized deterministic engine findings
+    diagnosis = de.analyze_financials(rules, context)
+    feasibility = gfe.analyze_goals_feasibility(context.get("goals", []), context)
+    action_plans = ape.generate_action_plans(context.get("goals", []), context)
+
+    # 4. Deterministic aggregation
+    items = aggregator.aggregate(
+        context=context,
+        rules=rules,
+        diagnosis=diagnosis,
+        feasibility=feasibility,
+        action_plans=action_plans
+    )
+
+    highest_priority = items[0].severity if items else None
+    return AttentionResponse(
+        items=items,
+        count=len(items),
+        highest_priority=highest_priority
+    )
+
+@router.get("/financial-pulse", response_model=FinancialPulseResponse)
+async def get_financial_pulse(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.context_builder import ContextBuilder
+    from app.engine.rules_engine import BusinessRuleEngine
+    from app.engine.financial_diagnosis import FinancialDiagnosisEngine
+    from app.engine.goal_feasibility import GoalFeasibilityEngine
+    from app.engine.action_planning import ActionPlanningEngine
+    from app.engine.attention_aggregator import AttentionAggregator
+
+    cb = ContextBuilder()
+    re = BusinessRuleEngine()
+    de = FinancialDiagnosisEngine()
+    gfe = GoalFeasibilityEngine()
+    ape = ActionPlanningEngine()
+    aggregator = AttentionAggregator()
+
+    # 1. Fetch user scoped context snapshot
+    context = await cb.build_context(current_user.id, db)
+
+    # 2. Compute deterministic rules
+    rules = re.compute_all_rules(
+        profile=context.get("profile", {}),
+        income_sources=context.get("incomes", []),
+        expense_categories=context.get("expenses", []),
+        assets=context.get("assets", []),
+        liabilities=context.get("liabilities", []),
+        goals=context.get("goals", []),
+        investments=context.get("investments", []),
+        insurance=context.get("insurance", []),
+        subscriptions=context.get("subscriptions", [])
+    )
+
+    # 3. Compute specialized engine findings
+    diagnosis = de.analyze_financials(rules, context)
+    feasibility = gfe.analyze_goals_feasibility(context.get("goals", []), context)
+    action_plans = ape.generate_action_plans(context.get("goals", []), context)
+
+    # 4. Deterministic attention items
+    items = aggregator.aggregate(
+        context=context,
+        rules=rules,
+        diagnosis=diagnosis,
+        feasibility=feasibility,
+        action_plans=action_plans
+    )
+
+    # 5. Assess Completeness
+    profile = context.get("profile", {})
+    incomes = context.get("incomes", [])
+    expenses = context.get("expenses", [])
+    assets = context.get("assets", [])
+    liabilities = context.get("liabilities", [])
+    goals = context.get("goals", [])
+
+    has_profile = bool(profile and profile.get("age") and profile.get("city"))
+    has_income = len(incomes) > 0
+    has_expenses = len(expenses) > 0
+    has_position = len(assets) > 0 or len(liabilities) > 0
+    has_goals = len(goals) > 0
+    is_complete = has_profile and has_income and has_expenses and has_position and has_goals
+
+    completeness_dict = {
+        "is_complete": is_complete,
+        "has_profile": has_profile,
+        "has_income": has_income,
+        "has_expenses": has_expenses,
+        "has_position": has_position,
+        "has_goals": has_goals
+    }
+
+    # 6. Assemble Pulse Data
+    total_income = sum(float(i.get("amount", 0)) for i in incomes)
+    total_expenses = sum(float(e.get("amount", 0)) for e in expenses)
+    total_emi = sum(float(l.get("emi", 0)) for l in liabilities)
+    surplus = total_income - total_expenses - total_emi
+
+    health_score = rules.get("financial_health_score", 50)
+    health_label = diagnosis.get("overall_state", {}).get("label", "Stable — Needs Care")
+
+    emergency_fund_val = profile.get("emergency_fund")
+    if emergency_fund_val is not None and float(emergency_fund_val) > 0:
+        emergency_fund_status = f"₹{float(emergency_fund_val):,.2f} ({rules.get('emergency_runway_months', 0.0):.1f} mo)"
+    else:
+        emergency_fund_status = "Unknown / Not designated"
+
+    pulse_data = {
+        "health_score": health_score,
+        "health_label": health_label,
+        "net_worth": rules.get("net_worth", 0.0),
+        "monthly_income": total_income,
+        "monthly_expenses": total_expenses + total_emi,
+        "monthly_surplus": surplus,
+        "savings_rate_pct": rules.get("savings_rate_pct", 0.0),
+        "dti_ratio_pct": rules.get("dti_ratio_pct", 0.0),
+        "emergency_runway_months": rules.get("emergency_runway_months", 0.0),
+        "emergency_fund_status": emergency_fund_status,
+        "goal_status": feasibility.get("summary", {}),
+        "is_complete": is_complete
+    }
+
+    return FinancialPulseResponse(
+        pulse=pulse_data,
+        attention_items=items,
+        completeness=completeness_dict
+    )
+
+
 
 # --- Authentication Routes ---
 @router.post("/auth/login")
@@ -56,17 +225,17 @@ async def get_profile(
     result = await db.execute(select(FinancialProfile).filter(FinancialProfile.user_id == current_user.id))
     profile = result.scalars().first()
     if not profile:
-        # Auto-initialize profile
+        # Auto-initialize empty profile
         profile = FinancialProfile(
             user_id=current_user.id,
-            occupation="Professional",
-            city="Mumbai",
-            age=34,
-            monthly_income=Decimal("204000.00"),
-            monthly_expenses=Decimal("142000.00"),
-            monthly_savings=Decimal("62000.00"),
-            emergency_fund=Decimal("800000.00"),
-            credit_score=780
+            occupation="",
+            city="",
+            age=0,
+            monthly_income=Decimal("0.00"),
+            monthly_expenses=Decimal("0.00"),
+            monthly_savings=Decimal("0.00"),
+            emergency_fund=Decimal("0.00"),
+            credit_score=0
         )
         db.add(profile)
         await db.flush()
@@ -338,7 +507,19 @@ async def update_profile(
     result = await db.execute(select(FinancialProfile).filter(FinancialProfile.user_id == current_user.id))
     profile = result.scalars().first()
     if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
+        profile = FinancialProfile(
+            user_id=current_user.id,
+            occupation="",
+            city="",
+            age=0,
+            monthly_income=Decimal("0.00"),
+            monthly_expenses=Decimal("0.00"),
+            monthly_savings=Decimal("0.00"),
+            emergency_fund=Decimal("0.00"),
+            credit_score=0
+        )
+        db.add(profile)
+        await db.flush()
         
     update_data = profile_update.model_dump(exclude_unset=True)
     for key, val in update_data.items():
@@ -476,7 +657,7 @@ async def get_daily_brief(
         subscriptions=context.get("subscriptions", [])
     )
 
-    first_name = current_user.full_name.split(" ")[0] if current_user.full_name else "Rajesh"
+    first_name = current_user.full_name.split(" ")[0] if current_user.full_name else "there"
 
     return {
         "greeting": f"Good Evening, {first_name}",
@@ -511,9 +692,9 @@ async def get_cashflow(
     categories = exp_result.scalars().all()
     
     return {
-        "income": float(profile.monthly_income) if profile else 204000.00,
-        "expenses": float(profile.monthly_expenses) if profile else 142000.00,
-        "savings": float(profile.monthly_savings) if profile else 62000.00,
+        "income": float(profile.monthly_income) if profile else 0.0,
+        "expenses": float(profile.monthly_expenses) if profile else 0.0,
+        "savings": float(profile.monthly_savings) if profile else 0.0,
         "sources": sources,
         "categories": categories
     }
@@ -702,17 +883,7 @@ async def get_goals(
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Goal).filter(Goal.user_id == current_user.id))
-    goals = result.scalars().all()
-    if not goals:
-        # Seed default goals
-        goals = [
-            Goal(user_id=current_user.id, goal_name="Aarav's Higher Education", category="Education", target_amount=Decimal("3500000.00"), saved_amount=Decimal("450000.00"), monthly_contribution=Decimal("15000.00"), priority="Critical", status="Under-funded"),
-            Goal(user_id=current_user.id, goal_name="Retirement", category="Retirement", target_amount=Decimal("30000000.00"), saved_amount=Decimal("1200000.00"), monthly_contribution=Decimal("23500.00"), priority="Critical", status="On Track")
-        ]
-        for g in goals:
-            db.add(g)
-        await db.flush()
-    return goals
+    return result.scalars().all()
 
 @router.post("/goals", response_model=GoalResponse)
 async def create_goal(
@@ -840,17 +1011,7 @@ async def get_investments(
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Investment).filter(Investment.user_id == current_user.id))
-    investments = result.scalars().all()
-    if not investments:
-        # Seed default investments
-        investments = [
-            Investment(user_id=current_user.id, investment_type="Gold", platform="Self Custody", invested_amount=Decimal("1500000.00"), current_value=Decimal("1850000.00"), expected_return=Decimal("8.5"), risk_level="Low"),
-            Investment(user_id=current_user.id, investment_type="MutualFunds", platform="PPFAS", invested_amount=Decimal("350000.00"), current_value=Decimal("450000.00"), expected_return=Decimal("14.0"), risk_level="Moderate")
-        ]
-        for i in investments:
-            db.add(i)
-        await db.flush()
-    return investments
+    return result.scalars().all()
 
 @router.post("/investments", response_model=InvestmentResponse)
 async def create_investment(
@@ -891,16 +1052,7 @@ async def get_insights(
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(AIInsight).filter(AIInsight.user_id == current_user.id))
-    insights = result.scalars().all()
-    if not insights:
-        insights = [
-            AIInsight(user_id=current_user.id, category="Tax", title="Switch to New Tax Regime", description="Switching saves ₹52,400 per year based on standard salary layout.", priority="High"),
-            AIInsight(user_id=current_user.id, category="Debt", title="HDFC Home Loan prepayment advantage", description="Prepaying shaves off 14 months of EMIs and saves ₹4.2 Lakhs.", priority="Medium")
-        ]
-        for ins in insights:
-            db.add(ins)
-        await db.flush()
-    return insights
+    return result.scalars().all()
 
 # --- Financial Health Route ---
 @router.get("/financial-health")

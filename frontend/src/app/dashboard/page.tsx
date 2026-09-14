@@ -67,7 +67,7 @@ import {
   Pie,
   Cell
 } from "recharts";
-import { apiFetch, apiGet, apiPost, apiDelete } from "@/lib/api";
+import { apiFetch, apiGet, apiPost, apiDelete, getAttention, getFinancialPulse, AttentionItem, FinancialPulseResponse } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import { SIDEBAR_ITEMS, WORKSPACE_CARDS } from "@/lib/constants";
 
@@ -97,7 +97,11 @@ export default function DashboardPage() {
   const [profileData, setProfileData] = useState<any>(null);
   const [summaryData, setSummaryData] = useState<any>(null);
   const [diagnosisData, setDiagnosisData] = useState<any>(null);
+  const [pulseData, setPulseData] = useState<FinancialPulseResponse | null>(null);
+  const [attentionItems, setAttentionItems] = useState<AttentionItem[]>([]);
+  const [pulseError, setPulseError] = useState<string | null>(null);
   const [insights, setInsights] = useState<any[]>([]);
+
   const [goals, setGoals] = useState<any[]>([]);
   const [investments, setInvestments] = useState<any[]>([]);
   const [insurance, setInsurance] = useState<any[]>([]);
@@ -109,7 +113,7 @@ export default function DashboardPage() {
 
   // AI CFO Conversations state
   const [cfoMessages, setCfoMessages] = useState<Message[]>([
-    { sender: "ai", text: "Good Evening Rajesh. I am your family's AI CFO. Let's optimize your balance sheet. Ask me any question, e.g., 'Should we invest our upcoming bonus or prepay our Home Loan?'", timestamp: "18:45" }
+    { sender: "ai", text: "Hello! I am your AI CFO. Let's analyze and optimize your balance sheet. Ask me any question regarding your cash flow, loans, investments, or goal planning.", timestamp: "Just now" }
   ]);
   const [cfoInput, setCfoInput] = useState("");
   const [suggestedActions, setSuggestedActions] = useState<string[]>([
@@ -217,6 +221,19 @@ export default function DashboardPage() {
         console.error("Dashboard summary API fetch failed with status code:", summaryRes.status);
       }
 
+      // Fetch authoritative Financial Pulse & Attention Items
+      try {
+        const pulseRes = await getFinancialPulse();
+        setPulseData(pulseRes);
+        setAttentionItems(pulseRes.attention_items || []);
+        setPulseError(null);
+      } catch (pulseErr: any) {
+        console.error("Financial Pulse loading failed:", pulseErr);
+        setPulseError("Financial Pulse couldn't be loaded.");
+        setPulseData(null);
+        setAttentionItems([]);
+      }
+
       // Fetch Financial Diagnosis report
       try {
         const diagRes = await apiGet("/api/v1/financial-diagnosis");
@@ -227,6 +244,7 @@ export default function DashboardPage() {
       } catch (diagErr) {
         console.error("Error fetching financial diagnosis details:", diagErr);
       }
+
 
       // Fetch Goals Feasibility report
       try {
@@ -588,26 +606,55 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 mt-3 w-80 bg-white border border-slate-200/80 rounded-3xl p-5 shadow-2xl z-50 text-left"
+                  className="absolute right-0 mt-3 w-84 bg-white border border-slate-200/80 rounded-3xl p-5 shadow-2xl z-50 text-left max-h-[420px] overflow-y-auto"
                 >
-                  <p className="text-[10px] text-slate-450 font-extrabold uppercase tracking-wider mb-3">AI Proactive Opportunities</p>
-                  <div className="space-y-3.5">
-                    <div className="border-b pb-2.5">
-                      <span className="text-[9px] bg-emerald-50 text-primary font-bold px-2 py-0.5 rounded">Unused Subscription</span>
-                      <p className="text-xs font-bold text-slate-800 mt-1">Cancel unused subscription</p>
-                      <p className="text-[10px] text-emerald-700 font-bold mt-0.5">Save ₹7,200/year immediately</p>
-                    </div>
-                    <div className="border-b pb-2.5">
-                      <span className="text-[9px] bg-emerald-50 text-primary font-bold px-2 py-0.5 rounded">Retirement Boost</span>
-                      <p className="text-xs font-bold text-slate-800 mt-1">Increase SIP contribution</p>
-                      <p className="text-[10px] text-emerald-700 font-bold mt-0.5">Shaves 1.4 years off retirement goal</p>
-                    </div>
-                    <div>
-                      <span className="text-[9px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded">Insurance Shield</span>
-                      <p className="text-xs font-bold text-slate-800 mt-1">Renewal upcoming</p>
-                      <p className="text-[10px] text-rose-700 font-bold mt-0.5">17 days remaining to avoid lapse</p>
-                    </div>
+                  <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                    <p className="text-[10px] text-slate-450 font-extrabold uppercase tracking-wider">Attention & Action Feed</p>
+                    <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">
+                      {attentionItems.length} active
+                    </span>
                   </div>
+                  
+                  {attentionItems.length === 0 ? (
+                    <div className="py-6 text-center text-xs text-slate-400 font-semibold">
+                      {pulseError ? pulseError : "No critical items requiring immediate attention."}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {attentionItems.map((item) => {
+                        const sevColor = 
+                          item.severity === "critical" ? "bg-rose-50 text-rose-700 border-rose-200" :
+                          item.severity === "high" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                          item.severity === "positive" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                          "bg-blue-50 text-blue-700 border-blue-200";
+                        return (
+                          <div key={item.id} className="border-b border-slate-100 pb-2.5 last:border-b-0">
+                            <div className="flex items-center justify-between">
+                              <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase ${sevColor}`}>
+                                {item.category} • {item.severity}
+                              </span>
+                            </div>
+                            <p className="text-xs font-bold text-slate-800 mt-1">{item.title}</p>
+                            <p className="text-[11px] text-slate-500 font-medium mt-0.5 line-clamp-2">{item.description}</p>
+                            <button
+                              onClick={() => {
+                                setShowNotifPopover(false);
+                                if (item.action_type === "navigate") {
+                                  router.push(item.target_route);
+                                } else if (item.action_type === "tab_switch") {
+                                  setActiveTab(item.target_route);
+                                  setWorkspaceExpanded(true);
+                                }
+                              }}
+                              className="text-[10px] text-primary font-bold mt-1.5 hover:underline flex items-center gap-1"
+                            >
+                              {item.action_label} &rarr;
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -782,8 +829,18 @@ export default function DashboardPage() {
                             <span className="font-black text-rose-600">{summaryData ? summaryData.financial_health.dti_ratio_pct.toFixed(1) : 0.0}%</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Runway Runway</span>
+                            <span>Runway (Designated)</span>
                             <span className="font-black text-slate-800">{summaryData ? summaryData.financial_health.emergency_runway_months.toFixed(1) : 0.0} mo</span>
+                          </div>
+                          <div className="flex justify-between items-center pt-1 border-t border-slate-200/60 text-[10px]">
+                            <span className="text-slate-500 font-bold">Reserve Status</span>
+                            <span className={`font-black px-1.5 py-0.5 rounded text-[9px] ${
+                              pulseData?.pulse?.emergency_fund_status?.includes("Robust") ? "bg-emerald-100 text-emerald-800" :
+                              pulseData?.pulse?.emergency_fund_status?.includes("Unknown") ? "bg-amber-100 text-amber-800" :
+                              "bg-rose-100 text-rose-800"
+                            }`}>
+                              {pulseData?.pulse?.emergency_fund_status || "Unknown / Not designated"}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -859,6 +916,110 @@ export default function DashboardPage() {
                           </div>
                         )}
                       </div>
+                    </div>
+
+                    {/* Attention Aggregator Section: Needs Your Attention & Positive Signals */}
+                    <div className="mt-8 border-t pt-6 space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-display text-lg font-black text-dark flex items-center gap-1.5">
+                            <Sparkles className="h-5 w-5 text-emerald-700 animate-pulse" />
+                            Needs Your Attention
+                          </h4>
+                          <p className="text-xs text-slate-500 font-medium">Deterministic risk aggregation and actionable handoffs</p>
+                        </div>
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-bold">
+                          {attentionItems.length} active items
+                        </span>
+                      </div>
+
+                      {pulseError && (
+                        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs font-bold text-rose-700">
+                          {pulseError}
+                        </div>
+                      )}
+
+                      {attentionItems.length === 0 && !pulseError ? (
+                        <div className="p-6 bg-slate-50 border border-slate-150 rounded-2xl text-center text-xs text-slate-500 font-semibold">
+                          All diagnostic markers healthy. No outstanding items requiring attention.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {attentionItems.map((item) => {
+                            const isCritical = item.severity === "critical";
+                            const isHigh = item.severity === "high";
+                            const isPositive = item.severity === "positive";
+                            
+                            const cardBg = isCritical ? "bg-rose-50/70 border-rose-200" :
+                                           isHigh ? "bg-amber-50/70 border-amber-200" :
+                                           isPositive ? "bg-emerald-50/70 border-emerald-200" :
+                                           "bg-slate-50 border-slate-200";
+
+                            const badgeColor = isCritical ? "bg-rose-100 text-rose-800" :
+                                               isHigh ? "bg-amber-100 text-amber-800" :
+                                               isPositive ? "bg-emerald-100 text-emerald-800" :
+                                               "bg-slate-200 text-slate-700";
+
+                            return (
+                              <div key={item.id} className={`p-4 rounded-2xl border ${cardBg} flex flex-col justify-between`}>
+                                <div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className={`text-[9px] uppercase px-2 py-0.5 rounded font-black tracking-wider ${badgeColor}`}>
+                                      {item.category} • {item.severity}
+                                    </span>
+                                  </div>
+                                  <h5 className="font-bold text-xs md:text-sm text-slate-850">{item.title}</h5>
+                                  <p className="text-xs text-slate-600 mt-1 font-medium leading-relaxed">{item.description}</p>
+                                  
+                                  {/* 5C.1 Structured 4-Question Explanation Badges */}
+                                  <div className="mt-3 pt-2.5 border-t border-slate-200/60 space-y-2 text-[11px]">
+                                    {item.what && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="font-extrabold uppercase text-[9px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded shrink-0">WHAT</span>
+                                        <span className="text-slate-700 font-semibold">{item.what}</span>
+                                      </div>
+                                    )}
+                                    {item.why && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="font-extrabold uppercase text-[9px] bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded shrink-0">WHY</span>
+                                        <span className="text-slate-600">{item.why}</span>
+                                      </div>
+                                    )}
+                                    {item.impact && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="font-extrabold uppercase text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded shrink-0">IMPACT</span>
+                                        <span className="text-slate-700 font-medium">{item.impact}</span>
+                                      </div>
+                                    )}
+                                    {item.next_step && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="font-extrabold uppercase text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded shrink-0">NEXT</span>
+                                        <span className="text-primary font-bold">{item.next_step}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-slate-200/50 flex items-center justify-between">
+                                  <button
+                                    onClick={() => {
+                                      if (item.action_type === "navigate") {
+                                        router.push(item.target_route);
+                                      } else if (item.action_type === "tab_switch") {
+                                        setActiveTab(item.target_route);
+                                        setWorkspaceExpanded(true);
+                                      }
+                                    }}
+                                    className="text-xs font-bold text-[#0B5D4B] hover:text-emerald-800 flex items-center gap-1.5"
+                                  >
+                                    {item.action_label} &rarr;
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
 
                     {/* Financial Diagnosis Results Section */}
@@ -945,6 +1106,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                 )}
+
 
                 {activeTab === "ai_cfo" && (
                   <div className="flex flex-col h-[520px] bg-slate-50 rounded-2xl border border-slate-200/60 overflow-hidden relative">
@@ -2181,8 +2343,10 @@ export default function DashboardPage() {
               
               <div className="flex justify-between items-start border-b border-slate-100 pb-4 mb-6">
                 <div>
-                  <h3 className="font-display text-2xl font-black text-dark">Good Evening, Rajesh.</h3>
-                  <p className="text-xs text-slate-450 font-semibold mt-1">While you were away, I analyzed your financial activity.</p>
+                  <h3 className="font-display text-2xl font-black text-dark">
+                    {briefData?.greeting || `Welcome, ${summaryData?.profile?.name || "Member"}`}
+                  </h3>
+                  <p className="text-xs text-slate-450 font-semibold mt-1">Here is your financial activity snapshot.</p>
                 </div>
                 <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-2xl text-center">
                   <span className="block text-2xl font-black text-primary">{briefData ? briefData.health_score : 89}</span>

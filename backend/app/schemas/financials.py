@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Any, Dict
 from datetime import datetime
 from uuid import UUID
@@ -68,6 +68,20 @@ class IncomeSourceBase(BaseModel):
     frequency: str = "Monthly"
     active: bool = True
 
+    @field_validator("source_name")
+    @classmethod
+    def validate_source_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Income source name cannot be empty")
+        return v.strip()
+
+    @field_validator("amount")
+    @classmethod
+    def validate_amount(cls, v: Decimal) -> Decimal:
+        if v < 0:
+            raise ValueError("Income amount cannot be negative")
+        return v
+
 class IncomeSourceCreate(IncomeSourceBase):
     pass
 
@@ -85,6 +99,20 @@ class ExpenseCategoryBase(BaseModel):
     essential: bool = True
     notes: Optional[str] = None
 
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Expense category cannot be empty")
+        return v.strip()
+
+    @field_validator("amount")
+    @classmethod
+    def validate_amount(cls, v: Decimal) -> Decimal:
+        if v < 0:
+            raise ValueError("Expense amount cannot be negative")
+        return v
+
 class ExpenseCategoryCreate(ExpenseCategoryBase):
     pass
 
@@ -101,6 +129,20 @@ class AssetBase(BaseModel):
     asset_type: str
     current_value: Decimal
     purchase_date: Optional[datetime] = None
+
+    @field_validator("asset_name")
+    @classmethod
+    def validate_asset_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Asset name cannot be empty")
+        return v.strip()
+
+    @field_validator("current_value")
+    @classmethod
+    def validate_current_value(cls, v: Decimal) -> Decimal:
+        if v < 0:
+            raise ValueError("Asset value cannot be negative")
+        return v
 
 class AssetCreate(AssetBase):
     pass
@@ -122,6 +164,20 @@ class LiabilityBase(BaseModel):
     emi: Decimal
     closing_date: Optional[datetime] = None
 
+    @field_validator("loan_name")
+    @classmethod
+    def validate_loan_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Loan name cannot be empty")
+        return v.strip()
+
+    @field_validator("principal", "outstanding", "interest_rate", "emi")
+    @classmethod
+    def validate_non_negative(cls, v: Decimal) -> Decimal:
+        if v < 0:
+            raise ValueError("Liability values cannot be negative")
+        return v
+
 class LiabilityCreate(LiabilityBase):
     pass
 
@@ -142,6 +198,20 @@ class GoalBase(BaseModel):
     target_date: Optional[datetime] = None
     priority: str = "Medium"
     status: str = "Active"
+
+    @field_validator("goal_name")
+    @classmethod
+    def validate_goal_name(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Goal name cannot be empty")
+        return v.strip()
+
+    @field_validator("target_amount", "saved_amount", "monthly_contribution")
+    @classmethod
+    def validate_goal_amounts(cls, v: Decimal) -> Decimal:
+        if v < 0:
+            raise ValueError("Goal amount cannot be negative")
+        return v
 
 class GoalCreate(GoalBase):
     pass
@@ -369,3 +439,46 @@ class CFOResponseSchema(BaseModel):
     tradeoffs: List[str] = Field(default_factory=list)
     assumptions: List[str] = Field(default_factory=list)
     evidence_used: List[str] = Field(default_factory=list)
+
+# --- Attention & Financial Pulse Schemas ---
+class AttentionItem(BaseModel):
+    id: str
+    category: str
+    severity: str
+    title: str
+    description: str
+    what: Optional[str] = None
+    why: Optional[str] = None
+    impact: Optional[str] = None
+    next_step: Optional[str] = None
+    metric_evidence: Dict[str, Any] = Field(default_factory=dict)
+    action_label: str
+    action_type: str
+    target_route: str
+    dedup_key: Optional[str] = None
+
+class AttentionResponse(BaseModel):
+    items: List[AttentionItem] = Field(default_factory=list)
+    count: int = 0
+    highest_priority: Optional[str] = None
+
+class FinancialPulseData(BaseModel):
+    health_score: int
+    health_label: str
+    net_worth: float
+    monthly_income: float
+    monthly_expenses: float
+    monthly_surplus: float
+    savings_rate_pct: float
+    dti_ratio_pct: float
+    emergency_runway_months: float
+    emergency_fund_status: str = "Unknown / Not designated"
+    goal_status: Dict[str, Any] = Field(default_factory=dict)
+    is_complete: bool
+
+class FinancialPulseResponse(BaseModel):
+    pulse: FinancialPulseData
+    attention_items: List[AttentionItem] = Field(default_factory=list)
+    completeness: Dict[str, Any] = Field(default_factory=dict)
+
+
