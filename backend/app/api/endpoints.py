@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import text
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from decimal import Decimal
 import datetime
 
@@ -24,7 +24,10 @@ from app.schemas.financials import (
     ExpenseCategoryCreate, ExpenseCategoryResponse, ExpenseCategoryUpdate,
     AssetCreate, AssetResponse, AssetUpdate,
     LiabilityCreate, LiabilityResponse, LiabilityUpdate,
-    AttentionResponse, FinancialPulseResponse
+    SubscriptionResponse, SubscriptionCreate,
+    AttentionResponse, FinancialPulseResponse,
+    CandidateListResponse, CandidateEntityResponse, CandidateApprovalRequest, CandidateEditRequest,
+    ConflictListResponse, ReconciliationConflict, ReconcileResolutionRequest
 )
 from app.engine.reasoning import ReasoningOrchestrator
 
@@ -1045,6 +1048,48 @@ async def create_insurance(
     await db.flush()
     return policy
 
+# --- Subscriptions Routes ---
+@router.get("/subscriptions", response_model=List[SubscriptionResponse])
+async def get_subscriptions(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(Subscription).filter(Subscription.user_id == current_user.id))
+    return result.scalars().all()
+
+@router.post("/subscriptions", response_model=SubscriptionResponse)
+async def create_subscription(
+    sub_in: SubscriptionCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # Idempotent check: query by service name
+    res = await db.execute(select(Subscription).filter(Subscription.user_id == current_user.id, Subscription.service == sub_in.service))
+    subscription = res.scalars().first()
+    if subscription:
+        update_data = sub_in.model_dump()
+        for k, v in update_data.items():
+            setattr(subscription, k, v)
+    else:
+        subscription = Subscription(user_id=current_user.id, **sub_in.model_dump())
+        db.add(subscription)
+    await db.flush()
+    return subscription
+
+@router.delete("/subscriptions/{id}")
+async def delete_subscription(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(Subscription).filter(Subscription.id == id, Subscription.user_id == current_user.id))
+    sub = res.scalars().first()
+    if not sub:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+    await db.delete(sub)
+    await db.flush()
+    return {"status": "deleted"}
+
 # --- Insights Routes ---
 @router.get("/insights", response_model=List[AIInsightResponse])
 async def get_insights(
@@ -1526,3 +1571,182 @@ async def delete_document(
     await db.delete(doc)
     await db.flush()
     return {"status": "deleted"}
+
+# --- Stage 5D: Human-in-the-Loop Ingestion & Candidate Review Endpoints ---
+@router.get("/ingestion/candidates", response_model=CandidateListResponse)
+async def list_candidate_entities(
+    status_filter: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.models.financials import CandidateFinancialEntity
+    
+    query = select(CandidateFinancialEntity).filter(CandidateFinancialEntity.user_id == current_user.id)
+    if status_filter:
+        query = query.filter(CandidateFinancialEntity.status == status_filter)
+    query = query.order_by(CandidateFinancialEntity.created_at.desc())
+    
+    res = await db.execute(query)
+    candidates = res.scalars().all()
+    
+    pending = [c for c in candidates if c.status == "PENDING_REVIEW"]
+    
+    return CandidateListResponse(
+        candidates=candidates,
+        total_count=len(candidates),
+        pending_count=len(pending)
+    )
+
+@router.post("/ingestion/candidates/{candidate_id}/approve", response_model=CandidateEntityResponse)
+async def approve_candidate_entity(
+    candidate_id: str,
+    body: Optional[CandidateApprovalRequest] = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import uuid
+    from app.engine.ingestion_engine import IngestionEngine
+    
+    try:
+        cand_uuid = uuid.UUID(candidate_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid candidate UUID format.")
+        
+    ingestion_engine = IngestionEngine()
+    try:
+        override = body.override_fields if body else None
+        approved_cand = await ingestion_engine.approve_candidate(
+            db=db,
+            candidate_id=cand_uuid,
+            user_id=current_user.id,
+            override_data=override
+        )
+        return approved_cand
+    except ValueError as ve:
+        err_msg = str(ve)
+        if "not found" in err_msg.lower():
+            raise HTTPException(status_code=404, detail=err_msg)
+        raise HTTPException(status_code=400, detail=err_msg)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to approve candidate: {str(e)}")
+
+@router.post("/ingestion/candidates/{candidate_id}/edit", response_model=CandidateEntityResponse)
+async def edit_and_approve_candidate_entity(
+    candidate_id: str,
+    body: CandidateEditRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import uuid
+    from app.engine.ingestion_engine import IngestionEngine
+    
+    try:
+        cand_uuid = uuid.UUID(candidate_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid candidate UUID format.")
+        
+    ingestion_engine = IngestionEngine()
+    try:
+        edited_cand = await ingestion_engine.approve_candidate(
+            db=db,
+            candidate_id=cand_uuid,
+            user_id=current_user.id,
+            override_data=body.edited_data
+        )
+        return edited_cand
+    except ValueError as ve:
+        err_msg = str(ve)
+        if "not found" in err_msg.lower():
+            raise HTTPException(status_code=404, detail=err_msg)
+        raise HTTPException(status_code=400, detail=err_msg)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to edit candidate: {str(e)}")
+
+@router.post("/ingestion/candidates/{candidate_id}/reject", response_model=CandidateEntityResponse)
+async def reject_candidate_entity(
+    candidate_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import uuid
+    from app.engine.ingestion_engine import IngestionEngine
+    
+    try:
+        cand_uuid = uuid.UUID(candidate_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid candidate UUID format.")
+        
+    ingestion_engine = IngestionEngine()
+    try:
+        rejected_cand = await ingestion_engine.reject_candidate(
+            db=db,
+            candidate_id=cand_uuid,
+            user_id=current_user.id
+        )
+        return rejected_cand
+    except ValueError as ve:
+        err_msg = str(ve)
+        if "not found" in err_msg.lower():
+            raise HTTPException(status_code=404, detail=err_msg)
+        raise HTTPException(status_code=400, detail=err_msg)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to reject candidate: {str(e)}")
+
+# --- Stage 5D.2 Reconciliation & Conflict Resolution Routes ---
+@router.get("/ingestion/conflicts", response_model=ConflictListResponse)
+async def list_reconciliation_conflicts(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.engine.ingestion_engine import IngestionEngine
+    ingestion_engine = IngestionEngine()
+    conflicts_data = await ingestion_engine.detect_conflicts(db=db, user_id=current_user.id)
+    return {
+        "conflicts": conflicts_data,
+        "total_conflicts": len(conflicts_data)
+    }
+
+@router.post("/ingestion/conflicts/{candidate_id}/resolve", response_model=CandidateEntityResponse)
+async def resolve_reconciliation_conflict(
+    candidate_id: str,
+    body: ReconcileResolutionRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import uuid
+    from app.engine.ingestion_engine import IngestionEngine
+    
+    try:
+        cand_uuid = uuid.UUID(candidate_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid candidate UUID format.")
+        
+    ingestion_engine = IngestionEngine()
+    
+    try:
+        if body.decision == "KEEP_CANONICAL":
+            # Reject candidate without changing canonical state
+            return await ingestion_engine.reject_candidate(db=db, candidate_id=cand_uuid, user_id=current_user.id)
+        elif body.decision == "ACCEPT_SUGGESTED":
+            # Approve candidate to update canonical state
+            return await ingestion_engine.approve_candidate(db=db, candidate_id=cand_uuid, user_id=current_user.id)
+        elif body.decision == "CUSTOM":
+            if body.custom_value is None:
+                raise HTTPException(status_code=400, detail="custom_value is required when decision is 'CUSTOM'")
+            override = {"amount": body.custom_value} if isinstance(body.custom_value, (int, float)) else body.custom_value
+            if isinstance(override, (int, float)):
+                override = {"amount": float(override)}
+            return await ingestion_engine.approve_candidate(db=db, candidate_id=cand_uuid, user_id=current_user.id, override_data=override)
+        else:
+            raise HTTPException(status_code=400, detail=f"Invalid resolution decision '{body.decision}'. Choose ACCEPT_SUGGESTED, KEEP_CANONICAL, or CUSTOM.")
+    except ValueError as ve:
+        err_msg = str(ve)
+        if "not found" in err_msg.lower():
+            raise HTTPException(status_code=404, detail=err_msg)
+        raise HTTPException(status_code=400, detail=err_msg)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to resolve reconciliation conflict: {str(e)}")
+
+

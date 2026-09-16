@@ -72,6 +72,19 @@ class DocumentProcessor:
                 )
                 db.add(chunk_obj)
                 
+            # 5. Stage Candidate Financial Entities (Human-in-the-Loop staging)
+            from app.engine.ingestion_engine import IngestionEngine
+            ingestion_engine = IngestionEngine()
+            await ingestion_engine.generate_candidates_from_document(
+                db=db,
+                document_id=doc.id,
+                user_id=user_id,
+                doc_type=class_res["document_type"],
+                page_texts=pages,
+                facts=facts,
+                file_name=doc.file_name or "Document.pdf"
+            )
+                
             doc.status = "PROCESSED"
             doc.processed_at = datetime.datetime.now(datetime.timezone.utc)
             

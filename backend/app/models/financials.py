@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import Column, String, Numeric, Integer, Boolean, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -23,6 +23,7 @@ class User(Base):
     insurance = relationship("Insurance", back_populates="user")
     subscriptions = relationship("Subscription", back_populates="user")
     documents = relationship("Document", back_populates="user")
+    candidate_entities = relationship("CandidateFinancialEntity", back_populates="user")
     ai_memories = relationship("AIMemory", back_populates="user")
     conversations = relationship("Conversation", back_populates="user")
     insights = relationship("AIInsight", back_populates="user")
@@ -182,6 +183,25 @@ class Document(Base):
     user = relationship("User", back_populates="documents")
     financial_facts = relationship("DocumentFinancialFact", back_populates="document", cascade="all, delete-orphan")
     chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
+    candidate_entities = relationship("CandidateFinancialEntity", back_populates="document")
+
+class CandidateFinancialEntity(Base):
+    __tablename__ = "candidate_financial_entities"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id", ondelete="SET NULL"), nullable=True)
+    candidate_type = Column(String(50), nullable=False) # INCOME, EXPENSE, LIABILITY, ASSET, INVESTMENT, SUBSCRIPTION, TRANSACTION
+    status = Column(String(50), default="PENDING_REVIEW", nullable=False) # PENDING_REVIEW, APPROVED, REJECTED, EDITED
+    confidence = Column(Numeric(5, 2), nullable=True) # Explicitly calculated confidence; NULL if unknown
+    suggested_data = Column(JSONB, nullable=False)
+    provenance = Column(JSONB, nullable=False)
+    canonical_entity_id = Column(UUID(as_uuid=True), nullable=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    user = relationship("User", back_populates="candidate_entities")
+    document = relationship("Document", back_populates="candidate_entities")
 
 class DocumentFinancialFact(Base):
     __tablename__ = "document_financial_facts"

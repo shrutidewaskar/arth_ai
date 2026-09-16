@@ -129,3 +129,64 @@ export async function getFinancialPulse(): Promise<FinancialPulseResponse> {
   return res.json();
 }
 
+// --- Stage 5D Candidate Entity (Human-in-the-Loop) Interfaces & Helpers ---
+export interface CandidateEntity {
+  id: string;
+  user_id: string;
+  document_id?: string;
+  candidate_type: string;
+  status: "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "EDITED";
+  confidence: number;
+  suggested_data: Record<string, any>;
+  provenance: {
+    file_name?: string;
+    source_page?: number;
+    raw_description?: string;
+    transaction_date?: string;
+    [key: string]: any;
+  };
+  canonical_entity_id?: string;
+  reviewed_at?: string;
+  created_at: string;
+}
+
+export interface CandidateListResponse {
+  candidates: CandidateEntity[];
+  total_count: number;
+  pending_count: number;
+}
+
+export async function getCandidates(statusFilter?: string): Promise<CandidateListResponse> {
+  const query = statusFilter ? `?status_filter=${encodeURIComponent(statusFilter)}` : "";
+  const res = await apiGet(`/api/v1/ingestion/candidates${query}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch candidates (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function approveCandidate(candidateId: string, overrideFields?: Record<string, any>): Promise<CandidateEntity> {
+  const res = await apiPost(`/api/v1/ingestion/candidates/${candidateId}/approve`, overrideFields ? { override_fields: overrideFields } : {});
+  if (!res.ok) {
+    throw new Error(`Failed to approve candidate (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function editCandidate(candidateId: string, editedData: Record<string, any>): Promise<CandidateEntity> {
+  const res = await apiPost(`/api/v1/ingestion/candidates/${candidateId}/edit`, { edited_data: editedData });
+  if (!res.ok) {
+    throw new Error(`Failed to edit candidate (${res.status})`);
+  }
+  return res.json();
+}
+
+export async function rejectCandidate(candidateId: string): Promise<CandidateEntity> {
+  const res = await apiPost(`/api/v1/ingestion/candidates/${candidateId}/reject`, {});
+  if (!res.ok) {
+    throw new Error(`Failed to reject candidate (${res.status})`);
+  }
+  return res.json();
+}
+
+

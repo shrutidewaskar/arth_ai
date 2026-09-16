@@ -23,7 +23,7 @@ class DocumentClassifier:
                 scores[doc_type] = match_count
                 
         if not scores:
-            return {"document_type": "OTHER", "confidence": 1.0}
+            return {"document_type": "OTHER", "confidence": None}
             
         # Select best match
         best_type = max(scores, key=scores.get)

@@ -481,4 +481,55 @@ class FinancialPulseResponse(BaseModel):
     attention_items: List[AttentionItem] = Field(default_factory=list)
     completeness: Dict[str, Any] = Field(default_factory=dict)
 
+# --- Candidate Financial Entity (Human-in-the-Loop) Schemas ---
+class CandidateEntityResponse(BaseModel):
+    id: UUID
+    user_id: UUID
+    document_id: Optional[UUID] = None
+    candidate_type: str
+    status: str
+    confidence: Optional[float] = None
+    suggested_data: Dict[str, Any]
+    provenance: Dict[str, Any]
+    canonical_entity_id: Optional[UUID] = None
+    reviewed_at: Optional[datetime] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class CandidateApprovalRequest(BaseModel):
+    override_fields: Optional[Dict[str, Any]] = None
+
+class CandidateEditRequest(BaseModel):
+    edited_data: Dict[str, Any]
+
+class CandidateListResponse(BaseModel):
+    candidates: List[CandidateEntityResponse] = Field(default_factory=list)
+    total_count: int = 0
+    pending_count: int = 0
+
+class ReconciliationConflict(BaseModel):
+    candidate_id: UUID
+    candidate_type: str
+    field_name: str
+    canonical_entity_id: Optional[UUID] = None
+    canonical_value: Any
+    canonical_source: str
+    suggested_value: Any
+    suggested_source: str
+    corroborating_sources: List[str] = Field(default_factory=list)
+    explanation: str
+    recommended_action: str
+
+class ConflictListResponse(BaseModel):
+    conflicts: List[ReconciliationConflict] = Field(default_factory=list)
+    total_conflicts: int = 0
+
+class ReconcileResolutionRequest(BaseModel):
+    decision: str # "ACCEPT_SUGGESTED", "KEEP_CANONICAL", "CUSTOM"
+    custom_value: Optional[Any] = None
+
+
+
 
