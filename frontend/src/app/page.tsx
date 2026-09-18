@@ -57,6 +57,7 @@ import { apiFetch, apiGet, apiPost, apiDelete } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import { MOCK_HOUSEHOLD, PRESETS, SIDEBAR_ITEMS, WORKSPACE_CARDS } from "@/lib/constants";
 import { FinancialNumbersBackground } from "@/components/shared/FinancialNumbersBackground";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 // --- Type Declarations & Mock Data ---
 interface Message {
@@ -328,52 +329,14 @@ export default function Page() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button 
-                onClick={() => setShowNotifPopover(!showNotifPopover)} 
-                className="bg-slate-100 hover:bg-slate-200/80 p-3 rounded-full relative transition flex items-center justify-center"
-              >
-                <Bell className="h-5 w-5 text-slate-700" />
-                <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-rose-600 border border-white animate-pulse" />
-              </button>
-              
-              <AnimatePresence>
-                {showNotifPopover && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-3 w-80 bg-white border border-slate-200/80 rounded-3xl p-5 shadow-2xl z-50 text-left"
-                  >
-                    <p className="text-[10px] text-slate-450 font-extrabold uppercase tracking-wider mb-3">AI Proactive Opportunities</p>
-                    <div className="space-y-3.5">
-                      <div className="border-b pb-2.5">
-                        <span className="text-[9px] bg-emerald-50 text-primary font-bold px-2 py-0.5 rounded">Unused Subscription</span>
-                        <p className="text-xs font-bold text-slate-800 mt-1">Cancel unused subscription</p>
-                        <p className="text-[10px] text-emerald-700 font-bold mt-0.5">Save ₹7,200/year immediately</p>
-                      </div>
-                      <div className="border-b pb-2.5">
-                        <span className="text-[9px] bg-emerald-50 text-primary font-bold px-2 py-0.5 rounded">Retirement Boost</span>
-                        <p className="text-xs font-bold text-slate-800 mt-1">Increase SIP contribution</p>
-                        <p className="text-[10px] text-emerald-700 font-bold mt-0.5">Shaves 1.4 years off retirement goal</p>
-                      </div>
-                      <div>
-                        <span className="text-[9px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded">Insurance Shield</span>
-                        <p className="text-xs font-bold text-slate-800 mt-1">Renewal upcoming</p>
-                        <p className="text-[10px] text-rose-700 font-bold mt-0.5">17 days remaining to avoid lapse</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <NotificationBell isAuthenticated={isAuthenticated} />
 
             {isAuthenticated ? (
               <Link 
                 href="/dashboard" 
                 className="bg-primary hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-7 py-3 rounded-full transition shadow-xl shadow-primary/10 uppercase tracking-widest flex items-center justify-center gap-1.5"
               >
-                Go to Dashboard <ArrowRight className="h-4 w-4" />
+                Access Sandbox <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
               <>

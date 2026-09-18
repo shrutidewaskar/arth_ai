@@ -15,12 +15,12 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    // If user is already authenticated, redirect to /dashboard
+    // If user is already authenticated, redirect to landing page
     const checkUser = async () => {
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        router.replace("/dashboard");
+        router.replace("/");
       }
     };
     checkUser();
@@ -46,7 +46,8 @@ export default function LoginPage() {
       if (error) {
         setErrorMsg(error.message);
       } else if (data.session) {
-        router.replace("/dashboard");
+        // Return to main landing page after successful authentication
+        router.replace("/");
       }
     } catch (err: any) {
       setErrorMsg(err.message || "An unexpected login error occurred.");
