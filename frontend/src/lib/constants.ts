@@ -145,276 +145,133 @@ const PRESETS = [
   }
 ];
 
-const SIDEBAR_ITEMS = [
-  { id: "overview", label: "Command Center", icon: LayoutDashboard },
-  { id: "ai_cfo", label: "AI CFO Workspace", icon: Brain },
-  { id: "cash_flow", label: "Cash Flow Story", icon: Wallet },
-  { id: "goals", label: "Goals Vault", icon: Target },
-  { id: "investments", label: "Investments Portfolio", icon: LineChart },
-  { id: "insurance", label: "Insurance Shield", icon: ShieldCheck },
-  { id: "health", label: "Health Score", icon: Activity },
-  { id: "simulator", label: "Scenario Simulator", icon: Compass },
-  { id: "calendar", label: "Financial Calendar", icon: CalendarIcon },
-  { id: "subscriptions", label: "Bills & Subs", icon: Coins },
-  { id: "vault", label: "Secure Vault", icon: FolderOpen },
-  { id: "family", label: "Family Dashboard", icon: Users },
-  { id: "twin", label: "AI Financial Twin", icon: Cpu },
-  { id: "decision_center", label: "Decision Center", icon: Scale },
-  { id: "insights", label: "Insights Feed", icon: Bell },
-  { id: "settings", label: "Settings", icon: SettingsIcon }
+export interface HubDefinition {
+  id: "home" | "money" | "plan" | "evidence" | "cfo" | "profile";
+  label: string;
+  icon: any;
+  description: string;
+  subTabs: { id: string; label: string }[];
+}
+
+export const CANONICAL_HUBS: HubDefinition[] = [
+  {
+    id: "home",
+    label: "Home",
+    icon: LayoutDashboard,
+    description: "Financial command center, health pulse, actionable attention items, and executive briefing.",
+    subTabs: [
+      { id: "pulse", label: "Overview & Pulse" },
+      { id: "attention", label: "Attention Center" },
+    ],
+  },
+  {
+    id: "money",
+    label: "Money",
+    icon: Wallet,
+    description: "Canonical ledger and balance sheet workspace for income, expenses, assets, liabilities, and investments.",
+    subTabs: [
+      { id: "overview", label: "Balance Sheet" },
+      { id: "cashflow", label: "Cash Flow" },
+      { id: "assets", label: "Assets" },
+      { id: "liabilities", label: "Liabilities" },
+      { id: "investments", label: "Investments" },
+      { id: "insurance", label: "Insurance" },
+      { id: "subscriptions", label: "Bills & Subs" },
+    ],
+  },
+  {
+    id: "plan",
+    label: "Plan",
+    icon: Target,
+    description: "Goal feasibility tracking, step-by-step action plans, deterministic scenario simulations, and forecasts.",
+    subTabs: [
+      { id: "goals", label: "Goals Vault" },
+      { id: "action_plans", label: "Action Plans" },
+      { id: "decision_center", label: "Decision Center" },
+      { id: "forecasts", label: "Financial Twin" },
+    ],
+  },
+  {
+    id: "evidence",
+    label: "Evidence",
+    icon: FolderOpen,
+    description: "Document vault, PDF processing status, human-in-the-loop review queue, and reconciliation conflicts.",
+    subTabs: [
+      { id: "vault", label: "Document Vault" },
+      { id: "review_queue", label: "Review Queue" },
+      { id: "conflicts", label: "Reconciliation Conflicts" },
+    ],
+  },
+  {
+    id: "cfo",
+    label: "AI CFO",
+    icon: Brain,
+    description: "Conversational financial reasoning engine grounded in your deterministic balance sheet and evidence.",
+    subTabs: [
+      { id: "chat", label: "CFO Advisory" },
+    ],
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    icon: SettingsIcon,
+    description: "Account configuration, Postgres Row-Level Security status, and isolated Developer & Demo Mode.",
+    subTabs: [
+      { id: "settings", label: "Security & Settings" },
+      { id: "developer", label: "Developer & Demo" },
+    ],
+  },
 ];
 
-const WORKSPACE_CARDS: Record<string, {
+export const SIDEBAR_ITEMS = CANONICAL_HUBS.map((h) => ({
+  id: h.id,
+  label: h.label,
+  icon: h.icon,
+}));
+
+export const WORKSPACE_CARDS: Record<string, {
   title: string;
   description: string;
-  aiStatus: string;
-  stats: { label: string; val: string }[];
-  lastUpdated: string;
-  primaryCta: string;
   gradient: string;
   icon: any;
-  quickSummary: string;
 }> = {
-  overview: {
-    title: "Command Center",
+  home: {
+    title: "Financial Command Center",
     description: "Consolidated overview of family balance sheet, net worth calculations, and high-priority AI insights.",
-    aiStatus: "Balance sheet compiled, 1 high-priority action recommended.",
-    stats: [
-      { label: "Net Worth", val: "₹11.0 Lakhs" },
-      { label: "Assets", val: "₹43.0 Lakhs" },
-      { label: "Debts", val: "₹32.0 Lakhs" }
-    ],
-    lastUpdated: "Updated 10m ago",
-    primaryCta: "Explore Workspace",
     gradient: "from-emerald-50/80 to-teal-50/40",
     icon: LayoutDashboard,
-    quickSummary: "Centralized hub compiling physical gold, fixed deposits, EPF balances, and home loans into one family ledger."
   },
-  ai_cfo: {
-    title: "AI CFO Workspace",
-    description: "Interact directly with your specialized family financial agent to model taxes, loans, and portfolio queries.",
-    aiStatus: "Advisory model active & fully trained on your contracts.",
-    stats: [
-      { label: "Prompts Run", val: "18 Active" },
-      { label: "Regime Status", val: "New Regime Swap" },
-      { label: "Tax Saved", val: "₹52,400" }
-    ],
-    lastUpdated: "Updated 1h ago",
-    primaryCta: "Launch CFO Workspace",
-    gradient: "from-teal-50/60 to-cyan-50/40",
-    icon: Brain,
-    quickSummary: "Chat-based advisory using deep mathematical reasoning over interest compounding, tax structures, and loan amortizations."
-  },
-  cash_flow: {
-    title: "Cash Flow Story",
-    description: "Understand where your money comes from, where it goes, and how your future cash flow is projected.",
-    aiStatus: "Cash flow is stable this month.",
-    stats: [
-      { label: "Income", val: "₹2,04,000" },
-      { label: "Expenses", val: "₹1,42,000" },
-      { label: "Savings Rate", val: "30%" }
-    ],
-    lastUpdated: "Updated 2h ago",
-    primaryCta: "Explore Workspace",
+  money: {
+    title: "Money Workspace",
+    description: "Real-time ledger tracking monthly recurring cash burn, savings buffer margins, assets, and liabilities.",
     gradient: "from-green-50/60 to-emerald-50/40",
     icon: Wallet,
-    quickSummary: "Real-time dashboard charting monthly recurring cash burn, savings buffer margins, and future compound projections."
   },
-  goals: {
-    title: "Goals Vault",
-    description: "Track every financial goal and let ArthAI continuously optimize the timeline.",
-    aiStatus: "Your Home Goal is ahead by 3 months.",
-    stats: [
-      { label: "Active Goals", val: "2 Goals" },
-      { label: "Completion", val: "64%" },
-      { label: "Monthly", val: "₹38,500" }
-    ],
-    lastUpdated: "Updated yesterday",
-    primaryCta: "Open Goals",
+  plan: {
+    title: "Planning & Decision Center",
+    description: "Goal tracker prioritizing critical milestones with dynamic capital allocation and scenario simulators.",
     gradient: "from-cyan-50/60 to-blue-50/40",
     icon: Target,
-    quickSummary: "Goal tracker prioritizing critical milestones (Higher Education, Retirement) with dynamic capital allocation models."
   },
-  investments: {
-    title: "Investments Portfolio",
-    description: "Monitor investments, portfolio allocation, returns and AI recommendations.",
-    aiStatus: "Portfolio is diversified.",
-    stats: [
-      { label: "Return", val: "14.8% CAGR" },
-      { label: "Risk Profile", val: "Moderate" },
-      { label: "Equity Allocation", val: "65%" }
-    ],
-    lastUpdated: "Updated 15m ago",
-    primaryCta: "Explore Portfolio",
-    gradient: "from-amber-50/60 to-yellow-50/40",
-    icon: LineChart,
-    quickSummary: "Tracks mutual fund folios, physical gold holdings, and fixed deposits with real-time return and risk calculations."
-  },
-  insurance: {
-    title: "Insurance Shield",
-    description: "Protect your family's future with AI-powered insurance analysis.",
-    aiStatus: "Coverage is 82%.",
-    stats: [
-      { label: "Policies", val: "3 Active" },
-      { label: "Renewals", val: "0 Pending" },
-      { label: "Coverage Gap", val: "18%" }
-    ],
-    lastUpdated: "Updated 2 days ago",
-    primaryCta: "Open Insurance",
-    gradient: "from-blue-50/60 to-indigo-50/40",
-    icon: ShieldCheck,
-    quickSummary: "Evaluates term life policies, health coverage gaps, and schedules premium payment alerts."
-  },
-  health: {
-    title: "Health Score",
-    description: "Your overall financial wellness score generated using AI.",
-    aiStatus: "Financial health improved this week.",
-    stats: [
-      { label: "Wellness Score", val: "84/100" },
-      { label: "Savings Health", val: "Healthy" },
-      { label: "Liquidity", val: "Stable" }
-    ],
-    lastUpdated: "Updated today",
-    primaryCta: "View Report",
-    gradient: "from-rose-50/60 to-pink-50/40",
-    icon: Activity,
-    quickSummary: "Composite health index scoring debt-to-income ratios, emergency cash runways, and diversification metrics."
-  },
-  simulator: {
-    title: "Scenario Simulator",
-    description: "Test important financial decisions before making them.",
-    aiStatus: "Ready for simulation.",
-    stats: [
-      { label: "Simulations Run", val: "2 Scenarios" },
-      { label: "Confidence", val: "94%" },
-      { label: "Projection Horizon", val: "5 Years" }
-    ],
-    lastUpdated: "Updated 4h ago",
-    primaryCta: "Launch Simulator",
-    gradient: "from-purple-50/60 to-fuchsia-50/40",
-    icon: Compass,
-    quickSummary: "Simulates major purchases (e.g. ₹15L SUV, land acquisition) against existing retirement targets and education corpuses."
-  },
-  calendar: {
-    title: "Financial Calendar",
-    description: "Never miss credit card cycles, tax deadlines, or insurance renewals.",
-    aiStatus: "No critical actions due in the next 7 days.",
-    stats: [
-      { label: "Scheduled Bills", val: "4 Items" },
-      { label: "Next Due", val: "Oct 15 (₹22K)" },
-      { label: "Reminders Set", val: "Auto-sync" }
-    ],
-    lastUpdated: "Updated 3h ago",
-    primaryCta: "Open Calendar",
-    gradient: "from-emerald-50/60 to-green-50/40",
-    icon: CalendarIcon,
-    quickSummary: "Interactive calendar charting tax cycles, SIP outlays, and policy renewal schedules."
-  },
-  subscriptions: {
-    title: "Bills & Subs",
-    description: "Track household subscriptions and recurring outlays.",
-    aiStatus: "2 overlapping subscriptions detected.",
-    stats: [
-      { label: "Monthly Outflow", val: "₹4,200/mo" },
-      { label: "Active Items", val: "6 Subs" },
-      { label: "Suggested Cuts", val: "₹1,200/mo" }
-    ],
-    lastUpdated: "Updated today",
-    primaryCta: "Manage Bills",
-    gradient: "from-violet-50/60 to-purple-50/40",
-    icon: Coins,
-    quickSummary: "Categorizes and monitors streaming platforms, SaaS tools, and monthly utility bills."
-  },
-  vault: {
-    title: "Secure Vault",
-    description: "A centralized secure repository for loan contracts, tax filings, and insurance policies.",
-    aiStatus: "3 documents parsed and securely indexed.",
-    stats: [
-      { label: "Documents", val: "3 Files" },
-      { label: "Encryption", val: "AES-256" },
-      { label: "Access Logs", val: "Secure" }
-    ],
-    lastUpdated: "Updated yesterday",
-    primaryCta: "Open Vault Workspace",
+  evidence: {
+    title: "Financial Evidence Intelligence",
+    description: "Secure repository for loan contracts, bank statements, salary slips, candidate review, and conflicts.",
     gradient: "from-slate-50/70 to-zinc-50/50",
     icon: FolderOpen,
-    quickSummary: "Allows secure storage of HDFC contracts, Aadhaar documents, and pay slips, using AI to extract key metadata."
   },
-  family: {
-    title: "Family Dashboard",
-    description: "Combined household finances and shared financial planning.",
-    aiStatus: "Household goals progressing normally.",
-    stats: [
-      { label: "Active Members", val: "3 Members" },
-      { label: "Shared Assets", val: "₹30.5 Lakhs" },
-      { label: "Goal Alignment", val: "Aligned" }
-    ],
-    lastUpdated: "Updated 1d ago",
-    primaryCta: "View Family Dashboard",
-    gradient: "from-teal-50/60 to-emerald-50/40",
-    icon: Users,
-    quickSummary: "Bridges multi-generational balances to project overall household wealth, and shared higher-education plans."
+  cfo: {
+    title: "AI Family CFO Workspace",
+    description: "Interact directly with your specialized family financial agent to model taxes, loans, and portfolio queries.",
+    gradient: "from-teal-50/60 to-cyan-50/40",
+    icon: Brain,
   },
-  twin: {
-    title: "AI Financial Twin",
-    description: "AI continuously predicts your future financial position based on current behaviour.",
-    aiStatus: "Forecast updated today.",
-    stats: [
-      { label: "Forecast Horizon", val: "15 Years" },
-      { label: "Behavior Impact", val: "Positive" },
-      { label: "Accuracy Score", val: "91%" }
-    ],
-    lastUpdated: "Updated 1h ago",
-    primaryCta: "Meet Your Twin",
-    gradient: "from-orange-50/60 to-amber-50/40",
-    icon: Cpu,
-    quickSummary: "Dynamic financial avatar simulating compounding metrics based on day-to-day spending patterns."
-  },
-  decision_center: {
-    title: "Decision Center",
-    description: "Consult ArthAI before making any major financial decision.",
-    aiStatus: "3 pending recommendations.",
-    stats: [
-      { label: "Recent Decisions", val: "4 analyzed" },
-      { label: "Approval Rate", val: "91%" },
-      { label: "Confidence", val: "94%" }
-    ],
-    lastUpdated: "Updated today",
-    primaryCta: "Start Decision Analysis",
-    gradient: "from-yellow-50/60 to-orange-50/40",
-    icon: Scale,
-    quickSummary: "A playground to simulate major asset transfers, prepayment choices, or large purchases."
-  },
-  insights: {
-    title: "Insights Feed",
-    description: "Daily financial intelligence generated automatically.",
-    aiStatus: "5 new insights available.",
-    stats: [
-      { label: "Total Feed", val: "24 Items" },
-      { label: "Unread", val: "5 Alerts" },
-      { label: "Savings Opportunity", val: "₹52K/yr" }
-    ],
-    lastUpdated: "Updated 12m ago",
-    primaryCta: "Read Insights",
-    gradient: "from-sky-50/60 to-blue-50/40",
-    icon: Bell,
-    quickSummary: "Feeds customized reports on tax regimes, mutual fund overlaps, and gold loan advantages."
-  },
-  settings: {
-    title: "Settings",
-    description: "Configure APIs, sync bank accounts via aggregator, and customize multi-generational settings.",
-    aiStatus: "Configurations updated.",
-    stats: [
-      { label: "Aggregator Sync", val: "Active" },
-      { label: "API Provider", val: "OpenAI v4" },
-      { label: "Secured Nodes", val: "2 Verified" }
-    ],
-    lastUpdated: "Updated 5 days ago",
-    primaryCta: "Manage Settings",
+  profile: {
+    title: "Settings & Security",
+    description: "Postgres Row-Level Security configurations, profile preferences, and isolated Developer/Demo Mode.",
     gradient: "from-zinc-50/70 to-slate-50/50",
     icon: SettingsIcon,
-    quickSummary: "Allows customization of simulation metrics, account connections, and profile configurations."
-  }
+  },
 };
 
-export { MOCK_HOUSEHOLD, PRESETS, SIDEBAR_ITEMS, WORKSPACE_CARDS };
+export { MOCK_HOUSEHOLD, PRESETS };
+

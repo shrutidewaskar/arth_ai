@@ -633,12 +633,6 @@ export default function Page() {
                     transition={{ duration: 0.25 }}
                     className={`p-8 rounded-3xl bg-gradient-to-br ${WORKSPACE_CARDS[activeTab]?.gradient || "from-slate-50 to-zinc-50"} border border-slate-200/60 shadow-lg relative flex flex-col justify-between min-h-[400px] w-full`}
                   >
-                    {/* Floating AI badge */}
-                    <div className="absolute top-6 right-6 inline-flex items-center gap-1.5 bg-white/90 border border-slate-200/40 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm backdrop-blur-sm">
-                      <Sparkles className="h-3.5 w-3.5 text-accent animate-pulse" />
-                      <span className="text-primary font-bold text-[10px] uppercase">AI Status: {WORKSPACE_CARDS[activeTab]?.aiStatus}</span>
-                    </div>
-
                     <div className="space-y-6">
                       {/* Title block */}
                       <div className="flex items-center gap-4">
@@ -647,7 +641,7 @@ export default function Page() {
                         </div>
                         <div>
                           <h3 className="font-display text-2xl font-black text-dark tracking-tight">{WORKSPACE_CARDS[activeTab]?.title}</h3>
-                          <span className="text-[10px] text-slate-450 font-bold tracking-wider uppercase">{WORKSPACE_CARDS[activeTab]?.lastUpdated}</span>
+                          <span className="text-[10px] text-slate-450 font-bold tracking-wider uppercase">Deterministic Intelligence</span>
                         </div>
                       </div>
 
@@ -655,27 +649,6 @@ export default function Page() {
                       <p className="text-sm md:text-base text-slate-655 font-semibold leading-relaxed max-w-xl">
                         {WORKSPACE_CARDS[activeTab]?.description}
                       </p>
-
-                      {/* Quick Summary Section */}
-                      {showQuickSummary === activeTab && (
-                        <motion.div 
-                          initial={{ opacity: 0, height: 0 }} 
-                          animate={{ opacity: 1, height: "auto" }} 
-                          className="p-4 bg-white/80 border border-slate-150 rounded-2xl text-xs font-semibold text-slate-600 leading-relaxed shadow-inner"
-                        >
-                          {WORKSPACE_CARDS[activeTab]?.quickSummary}
-                        </motion.div>
-                      )}
-
-                      {/* Statistics Grid */}
-                      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200/30">
-                        {WORKSPACE_CARDS[activeTab]?.stats.map((s, idx) => (
-                          <div key={idx} className="bg-white/80 border border-slate-150/60 p-4 rounded-2xl shadow-sm">
-                            <span className="text-[9px] text-slate-450 font-bold uppercase tracking-wider">{s.label}</span>
-                            <p className="text-sm md:text-base font-black text-primary mt-1">{s.val}</p>
-                          </div>
-                        ))}
-                      </div>
                     </div>
 
                     {/* CTAs */}
@@ -684,16 +657,11 @@ export default function Page() {
                         onClick={() => setWorkspaceExpanded(true)}
                         className="bg-primary hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-7 py-3.5 rounded-full transition shadow-lg shadow-primary/10 uppercase tracking-widest flex items-center gap-1.5"
                       >
-                        {WORKSPACE_CARDS[activeTab]?.primaryCta || "Explore Workspace"} &rarr;
-                      </button>
-                      <button
-                        onClick={() => setShowQuickSummary(showQuickSummary === activeTab ? null : activeTab)}
-                        className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 text-xs md:text-sm font-bold px-6 py-3.5 rounded-full transition uppercase tracking-widest"
-                      >
-                        {showQuickSummary === activeTab ? "Hide Summary" : "Quick Summary"}
+                        Explore Sandbox &rarr;
                       </button>
                     </div>
                   </motion.div>
+
                 ) : (
                   <motion.div
                     key={`workspace-${activeTab}`}

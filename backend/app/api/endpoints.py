@@ -636,48 +636,116 @@ async def get_daily_brief(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    profile_res = await db.execute(select(FinancialProfile).filter(FinancialProfile.user_id == current_user.id))
-    profile = profile_res.scalars().first()
-    if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found. Please seed demo first.")
-
-    # Fetch context to compile rules
     from app.engine.context_builder import ContextBuilder
     from app.engine.rules_engine import BusinessRuleEngine
+    from app.engine.financial_diagnosis import FinancialDiagnosisEngine
+    from app.engine.goal_feasibility import GoalFeasibilityEngine
+    from app.engine.action_planning import ActionPlanningEngine
+
     cb = ContextBuilder()
     re = BusinessRuleEngine()
-    
+    de = FinancialDiagnosisEngine()
+    gfe = GoalFeasibilityEngine()
+    ape = ActionPlanningEngine()
+
     context = await cb.build_context(current_user.id, db)
+    profile = context.get("profile", {})
+    incomes = context.get("incomes", [])
+    expenses = context.get("expenses", [])
+    assets = context.get("assets", [])
+    liabilities = context.get("liabilities", [])
+    goals = context.get("goals", [])
+    investments = context.get("investments", [])
+    insurance = context.get("insurance", [])
+    subscriptions = context.get("subscriptions", [])
+
+    # Check if user has sufficient data
+    has_data = bool(incomes or expenses or assets or liabilities or goals)
+    if not has_data:
+        return {
+            "has_data": False,
+            "greeting": f"Welcome, {current_user.full_name or 'there'}",
+            "summary_message": "Your financial brief will become available as ArthAI gathers more financial information.",
+            "health_score": 50,
+            "summary": [],
+            "top_recommendation": None,
+            "biggest_risk": None,
+            "largest_opportunity": None,
+            "suggested_action": None
+        }
+
     rules = re.compute_all_rules(
-        profile=context.get("profile", {}),
-        income_sources=context.get("incomes", []),
-        expense_categories=context.get("expenses", []),
-        assets=context.get("assets", []),
-        liabilities=context.get("liabilities", []),
-        goals=context.get("goals", []),
-        investments=context.get("investments", []),
-        insurance=context.get("insurance", []),
-        subscriptions=context.get("subscriptions", [])
+        profile=profile,
+        income_sources=incomes,
+        expense_categories=expenses,
+        assets=assets,
+        liabilities=liabilities,
+        goals=goals,
+        investments=investments,
+        insurance=insurance,
+        subscriptions=subscriptions
     )
+
+    diagnosis = de.analyze_financials(rules, context)
+    feasibility = gfe.analyze_goals_feasibility(goals, context)
+    action_plans = ape.generate_action_plans(goals, context)
 
     first_name = current_user.full_name.split(" ")[0] if current_user.full_name else "there"
 
+    # Derive truthful summary items
+    summary_bullets = []
+    if incomes:
+        summary_bullets.append(f"Savings rate is at {rules.get('savings_rate_pct', 0.0):.1f}% (target: 30%).")
+    if expenses:
+        summary_bullets.append(f"Emergency runway covers {rules.get('emergency_runway_months', 0.0):.1f} months of expenses.")
+    
+    # Goal status summary
+    goals_on_track = [g for g in feasibility.get("goals", []) if g.get("status") == "ON_TRACK"]
+    goals_underfunded = [g for g in feasibility.get("goals", []) if g.get("status") in ["UNDERFUNDED", "AT_RISK"]]
+    if goals_on_track:
+        summary_bullets.append(f"{len(goals_on_track)} milestone goal(s) currently on track.")
+    if goals_underfunded:
+        summary_bullets.append(f"{len(goals_underfunded)} milestone goal(s) require trajectory attention.")
+
+    # Top recommendation from diagnosis recommendations
+    top_rec = None
+    if diagnosis.get("recommendations"):
+        r = diagnosis["recommendations"][0]
+        top_rec = f"{r.get('title')}: {r.get('action')}"
+
+    # Biggest risk from diagnosis risks
+    biggest_risk = None
+    if diagnosis.get("risks"):
+        rk = diagnosis["risks"][0]
+        biggest_risk = f"{rk.get('title')} — {rk.get('description')}"
+
+    # Largest opportunity from action plans or strengths
+    largest_opp = None
+    if action_plans.get("plans") and action_plans["plans"][0].get("safety", {}).get("is_viable"):
+        p = action_plans["plans"][0]
+        largest_opp = f"Adopt Plan: {p.get('label')}"
+    elif diagnosis.get("strengths"):
+        st = diagnosis["strengths"][0]
+        largest_opp = f"{st.get('title')} — {st.get('description')}"
+
+    # Suggested action
+    suggested_action = None
+    if diagnosis.get("priorities"):
+        pr = diagnosis["priorities"][0]
+        suggested_action = pr.get("recommended_action")
+
     return {
-        "greeting": f"Good Evening, {first_name}",
-        "health_score": rules["financial_health_score"],
-        "health_score_breakdown": rules["financial_health_score_breakdown"],
-        "summary": [
-            f"Your savings rate is at {rules['savings_rate_pct']:.1f}% (target: 30%).",
-            f"Emergency fund covers {rules['emergency_runway_months']:.1f} months of expenses.",
-            "Home Downpayment goal is currently on track."
-        ],
-        "top_recommendation": "Switch to New Tax Regime to unlock ₹52,400 in annual direct tax savings.",
-        "biggest_risk": "Underinsured gap of ₹12.5 Lakhs based on current multi-generational liabilities.",
-        "largest_opportunity": "Prepay ₹38,000 on home loan principal to shave 32 months off tenure.",
-        "upcoming_event": "Netflix Premium renewing in 12 days (₹649.00).",
-        "suggested_action": "Increase PPFAS Mutual Fund SIP by ₹2,000 monthly.",
-        "confidence": 0.94
+        "has_data": True,
+        "greeting": f"Good Day, {first_name}",
+        "health_score": rules.get("financial_health_score", 50),
+        "health_score_breakdown": rules.get("financial_health_score_breakdown", {}),
+        "summary": summary_bullets,
+        "top_recommendation": top_rec,
+        "biggest_risk": biggest_risk,
+        "largest_opportunity": largest_opp,
+        "suggested_action": suggested_action
     }
+
 
 # --- Cash Flow Routes ---
 @router.get("/cashflow")
