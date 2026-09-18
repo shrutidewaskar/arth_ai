@@ -543,9 +543,12 @@ export default function Page() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <div className="premium-card p-10 text-left flex flex-col justify-between">
+            <Link 
+              href="/dashboard?tab=cfo" 
+              className="premium-card p-10 text-left flex flex-col justify-between group hover:border-accent hover:shadow-lg transition block"
+            >
               <div>
-                <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250">
+                <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250 group-hover:scale-105 transition">
                   <Brain className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold text-dark font-display mb-4">AI Financial Advisor</h3>
@@ -553,14 +556,17 @@ export default function Page() {
                   Ask strategic questions (e.g. Regime shifts, home purchases) and let the model parse your balance sheet.
                 </p>
               </div>
-              <div className="mt-8 pt-4 border-t border-slate-100 text-xs md:text-sm font-bold text-primary flex items-center gap-1.5">
-                Explore Advisory loop <ArrowUpRight className="h-4.5 w-4.5" />
+              <div className="mt-8 pt-4 border-t border-slate-100 text-xs md:text-sm font-bold text-primary flex items-center gap-1.5 group-hover:text-[#074739]">
+                Explore Advisory loop <ArrowUpRight className="h-4.5 w-4.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
               </div>
-            </div>
+            </Link>
 
-            <div className="premium-card p-10 text-left flex flex-col justify-between">
+            <Link 
+              href="/dashboard?tab=plan&subTab=decision_center" 
+              className="premium-card p-10 text-left flex flex-col justify-between group hover:border-accent hover:shadow-lg transition block"
+            >
               <div>
-                <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250">
+                <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250 group-hover:scale-105 transition">
                   <LineChart className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold text-dark font-display mb-4">Future Cash Flow Forecasts</h3>
@@ -568,14 +574,17 @@ export default function Page() {
                   Predictive wealth curve modeling that integrates gold returns, mutual fund yield, and loan prepayments.
                 </p>
               </div>
-              <div className="mt-8 pt-4 border-t border-slate-100 text-xs md:text-sm font-bold text-primary flex items-center gap-1.5">
-                View simulation curves <ArrowUpRight className="h-4.5 w-4.5" />
+              <div className="mt-8 pt-4 border-t border-slate-100 text-xs md:text-sm font-bold text-primary flex items-center gap-1.5 group-hover:text-[#074739]">
+                View simulation curves <ArrowUpRight className="h-4.5 w-4.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
               </div>
-            </div>
+            </Link>
 
-            <div className="premium-card p-10 text-left flex flex-col justify-between">
+            <Link 
+              href="/dashboard?tab=plan&subTab=goals" 
+              className="premium-card p-10 text-left flex flex-col justify-between group hover:border-accent hover:shadow-lg transition block"
+            >
               <div>
-                <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250">
+                <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250 group-hover:scale-105 transition">
                   <Target className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold text-dark font-display mb-4">Goal Progress Allocator</h3>
@@ -583,10 +592,10 @@ export default function Page() {
                   Allocate liquid assets to dedicated life targets and project precise funding ratios.
                 </p>
               </div>
-              <div className="mt-8 pt-4 border-t border-slate-100 text-xs md:text-sm font-bold text-primary flex items-center gap-1.5">
-                Manage targets <ArrowUpRight className="h-4.5 w-4.5" />
+              <div className="mt-8 pt-4 border-t border-slate-100 text-xs md:text-sm font-bold text-primary flex items-center gap-1.5 group-hover:text-[#074739]">
+                Manage targets <ArrowUpRight className="h-4.5 w-4.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
               </div>
-            </div>
+            </Link>
           </div>
         </section>
 

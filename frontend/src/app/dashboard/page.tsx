@@ -111,9 +111,10 @@ function DashboardContent() {
 
   const [comparisonResult, setComparisonResult] = useState<any>(null);
 
-  // Handle URL deep linking (e.g. ?tab=simulator, ?tab=investments) for compatibility
+  // Handle URL deep linking (e.g. ?tab=simulator, ?tab=investments, ?tab=plan&subTab=goals)
   useEffect(() => {
     const tabParam = searchParams.get("tab");
+    const subTabParam = searchParams.get("subTab");
     if (tabParam) {
       if (tabParam === "overview" || tabParam === "home") {
         setActiveHub("home");
@@ -147,6 +148,9 @@ function DashboardContent() {
       } else if (tabParam === "settings" || tabParam === "profile") {
         setActiveHub("profile");
       }
+    }
+    if (subTabParam) {
+      setActiveSubTab(subTabParam);
     }
   }, [searchParams]);
 
