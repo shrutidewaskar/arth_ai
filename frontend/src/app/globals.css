@@ -137,4 +137,40 @@ body {
   animation: pulseLineVertical 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/* Vertical Number Streams for Subtle Background */
+@keyframes streamScrollUp {
+  0% { transform: translateY(0%); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes streamScrollDown {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0%); }
+}
+
+.animate-stream-up-1 {
+  animation: streamScrollUp 50s linear infinite;
+}
+
+.animate-stream-up-2 {
+  animation: streamScrollUp 38s linear infinite;
+}
+
+.animate-stream-up-3 {
+  animation: streamScrollUp 60s linear infinite;
+}
+
+.animate-stream-down-1 {
+  animation: streamScrollDown 45s linear infinite;
+}
+
+.animate-stream-down-2 {
+  animation: streamScrollDown 34s linear infinite;
+}
+
+.animate-stream-down-3 {
+  animation: streamScrollDown 55s linear infinite;
+}
+
+
 

@@ -56,6 +56,7 @@ import {
 import { apiFetch, apiGet, apiPost, apiDelete } from "@/lib/api";
 import { createClient } from "@/lib/supabase/client";
 import { MOCK_HOUSEHOLD, PRESETS, SIDEBAR_ITEMS, WORKSPACE_CARDS } from "@/lib/constants";
+import { FinancialNumbersBackground } from "@/components/shared/FinancialNumbersBackground";
 
 // --- Type Declarations & Mock Data ---
 interface Message {
@@ -294,9 +295,10 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] selection:bg-emerald-150 relative grid-bg-overlay overflow-x-hidden">
       
-      {/* Decorative Background meshes */}
+      {/* Decorative Background meshes & subtle scrolling financial streams */}
       <div className="absolute top-0 left-1/4 h-[700px] w-[700px] mesh-glow-1 pointer-events-none rounded-full" />
       <div className="absolute top-[800px] right-1/4 h-[900px] w-[900px] mesh-glow-2 pointer-events-none rounded-full" />
+      <FinancialNumbersBackground />
 
       {/* ---------------- ANNOUNCEMENT BANNER ---------------- */}
       <div className="bg-[#084235] text-white text-[12px] md:text-[13px] font-semibold py-3.5 px-6 text-center flex items-center justify-center gap-2 border-b border-emerald-950/20 relative z-30">
