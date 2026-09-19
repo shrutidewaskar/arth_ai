@@ -76,10 +76,10 @@ export const FinanceNewsList: React.FC<FinanceNewsListProps> = ({
             <h4 className="text-xs font-medium text-slate-200 group-hover:text-emerald-400 line-clamp-2 leading-snug transition-colors">
               {item.title}
             </h4>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-all" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-all" />
           </div>
           <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400">
-            <span className="font-semibold text-emerald-500/90 truncate max-w-[140px]">{item.source}</span>
+            <span className="font-semibold text-emerald-500/90 truncate max-w-35">{item.source}</span>
             <span>•</span>
             <span>{formatRelativeTime(item.publishedAt)}</span>
           </div>

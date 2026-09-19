@@ -79,7 +79,7 @@ export function InvestmentsSection({
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#0B5D4B] hover:bg-[#074739] text-white rounded-xl text-xs font-bold transition shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-[#074739] text-white rounded-xl text-xs font-bold transition shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
             Add Investment
@@ -153,7 +153,7 @@ export function InvestmentsSection({
                   <h4 className="text-sm font-black text-slate-800">
                     {inv.platform ? `${inv.platform} (${inv.investment_type})` : inv.investment_type}
                   </h4>
-                  <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] px-2 py-0.5 rounded font-bold uppercase mt-1 inline-block">
+                  <span className="text-[10px] bg-emerald-50 text-primary px-2 py-0.5 rounded font-bold uppercase mt-1 inline-block">
                     {inv.investment_type}
                   </span>
                 </div>
@@ -252,7 +252,7 @@ export function InvestmentsSection({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 text-xs font-black text-white bg-[#0B5D4B] hover:bg-[#074739] rounded-xl transition shadow-sm"
+                  className="px-4 py-2 text-xs font-black text-white bg-primary hover:bg-[#074739] rounded-xl transition shadow-sm"
                 >
                   {loading ? "Saving..." : "Save Investment"}
                 </button>

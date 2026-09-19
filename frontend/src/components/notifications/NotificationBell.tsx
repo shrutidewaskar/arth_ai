@@ -149,11 +149,10 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isAuthentica
             <div className="grid grid-cols-2 p-1.5 bg-[#020d0a] border-b border-emerald-500/15 text-xs font-medium">
               <button
                 onClick={() => setActiveTab('personal')}
-                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
-                  activeTab === 'personal'
+                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${activeTab === 'personal'
                     ? 'bg-emerald-500/20 text-emerald-300 font-semibold shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
-                }`}
+                  }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Your ArthAI</span>
@@ -165,11 +164,10 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isAuthentica
               </button>
               <button
                 onClick={() => setActiveTab('news')}
-                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
-                  activeTab === 'news'
+                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${activeTab === 'news'
                     ? 'bg-emerald-500/20 text-emerald-300 font-semibold shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
-                }`}
+                  }`}
               >
                 <Newspaper className="w-3.5 h-3.5" />
                 <span>Finance News</span>
@@ -178,7 +176,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isAuthentica
           )}
 
           {/* Body Content */}
-          <div className="max-h-[380px] overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-emerald-500/20">
+          <div className="max-h-95 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-emerald-500/20">
             {isAuthenticated && activeTab === 'personal' ? (
               <PersonalNotificationList
                 items={personalItems}

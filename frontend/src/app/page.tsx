@@ -4,25 +4,25 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { 
-  Sparkles, 
-  ArrowRight, 
-  TrendingUp, 
-  Compass, 
-  Layers, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Cpu, 
-  Target, 
-  LineChart, 
-  Brain, 
+import {
+  Sparkles,
+  ArrowRight,
+  TrendingUp,
+  Compass,
+  Layers,
+  ShieldCheck,
+  CheckCircle2,
+  Cpu,
+  Target,
+  LineChart,
+  Brain,
   Wallet,
-  Menu, 
-  X, 
-  ArrowUpRight, 
-  Activity, 
-  MessageSquare, 
-  Calendar as CalendarIcon, 
+  Menu,
+  X,
+  ArrowUpRight,
+  Activity,
+  MessageSquare,
+  Calendar as CalendarIcon,
   HelpCircle,
   Settings as SettingsIcon,
   ChevronRight,
@@ -79,7 +79,7 @@ const PIPELINE_STEPS = [
       </svg>
     ),
     widget: (
-      <div className="bg-[#0B5D4B]/5 border border-[#0B5D4B]/10 rounded-2xl p-3.5 text-left w-full shadow-sm max-w-[210px] mx-auto">
+      <div className="bg-primary/5 border border-primary/10 rounded-2xl p-3.5 text-left w-full shadow-sm max-w-52.5 mx-auto">
         <p className="text-[9px] uppercase tracking-wider font-extrabold text-primary mb-1">User Query</p>
         <p className="text-xs text-slate-700 font-semibold leading-normal">
           "Can I afford a ₹15 lakh SUV next year?"
@@ -99,7 +99,7 @@ const PIPELINE_STEPS = [
       </svg>
     ),
     widget: (
-      <div className="flex flex-wrap gap-1.5 justify-center max-w-[220px] mx-auto">
+      <div className="flex flex-wrap gap-1.5 justify-center max-w-55 mx-auto">
         {["Income", "Goals", "Insurance", "Investments", "Expenses"].map((chip) => (
           <span key={chip} className="text-[10px] bg-slate-100/80 text-slate-600 border border-slate-200/50 px-2.5 py-1 rounded-full font-bold shadow-sm hover:bg-emerald-50 hover:text-primary hover:border-emerald-250 transition-all duration-300">
             {chip}
@@ -120,7 +120,7 @@ const PIPELINE_STEPS = [
       </svg>
     ),
     widget: (
-      <div className="bg-white border border-slate-150 rounded-2xl p-3 text-left w-full shadow-sm max-w-[200px] mx-auto space-y-2">
+      <div className="bg-white border border-slate-150 rounded-2xl p-3 text-left w-full shadow-sm max-w-50 mx-auto space-y-2">
         <div className="flex justify-between items-center text-[10px]">
           <span className="text-slate-400 font-bold">Savings Rate</span>
           <span className="text-emerald-600 font-black">30%</span>
@@ -151,7 +151,7 @@ const PIPELINE_STEPS = [
       </svg>
     ),
     widget: (
-      <div className="flex flex-col gap-1.5 w-full max-w-[190px] mx-auto text-xs text-left">
+      <div className="flex flex-col gap-1.5 w-full max-w-47.5 mx-auto text-xs text-left">
         <div className="flex items-center justify-between bg-emerald-50/50 border border-emerald-100/50 px-3 py-1 rounded-xl">
           <span className="font-bold text-emerald-700 text-[10px]">Best Case</span>
           <span className="text-[10px] font-black text-emerald-600">+14% yield</span>
@@ -179,7 +179,7 @@ const PIPELINE_STEPS = [
       </svg>
     ),
     widget: (
-      <div className="bg-white border border-slate-150 rounded-2xl p-3 text-center w-full shadow-sm max-w-[190px] mx-auto">
+      <div className="bg-white border border-slate-150 rounded-2xl p-3 text-center w-full shadow-sm max-w-47.5 mx-auto">
         <p className="text-[9px] uppercase tracking-wider font-extrabold text-slate-400">Confidence Score</p>
         <p className="text-2xl font-black text-primary mt-1">96%</p>
         <span className="text-[8px] bg-emerald-100 text-emerald-700 font-extrabold px-2 py-0.5 rounded-full mt-1.5 inline-block">High Safety</span>
@@ -198,7 +198,7 @@ const PIPELINE_STEPS = [
       </svg>
     ),
     widget: (
-      <div className="bg-emerald-950 text-white rounded-2xl p-3.5 text-left w-full shadow-lg max-w-[210px] mx-auto text-[10px] leading-relaxed border border-emerald-900/50">
+      <div className="bg-emerald-950 text-white rounded-2xl p-3.5 text-left w-full shadow-lg max-w-52.5 mx-auto text-[10px] leading-relaxed border border-emerald-900/50">
         <p className="text-emerald-400 font-extrabold mb-1">CFO Suggestion</p>
         <p className="opacity-90 font-semibold">
           "Buying this SUV today would delay your home goal by 6 months. Waiting 8 months keeps emergency reserves healthy."
@@ -220,8 +220,8 @@ const containerVariants: Variants = {
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 35 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { type: "spring", stiffness: 100, damping: 15 }
   }
@@ -247,7 +247,7 @@ export default function Page() {
       const error = url.searchParams.get("error");
       const errorCode = url.searchParams.get("error_code");
       const errorDescription = url.searchParams.get("error_description");
-      
+
       // Also check URL hash if redirected with fragment
       let hashError = null;
       let hashErrorCode = null;
@@ -294,11 +294,11 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] selection:bg-emerald-150 relative grid-bg-overlay overflow-x-hidden">
-      
+    <div className="min-h-screen bg-bg-soft text-dark selection:bg-emerald-150 relative grid-bg-overlay overflow-x-hidden">
+
       {/* Decorative Background meshes & subtle scrolling financial streams */}
-      <div className="absolute top-0 left-1/4 h-[700px] w-[700px] mesh-glow-1 pointer-events-none rounded-full" />
-      <div className="absolute top-[800px] right-1/4 h-[900px] w-[900px] mesh-glow-2 pointer-events-none rounded-full" />
+      <div className="absolute top-0 left-1/4 h-175 w-175 mesh-glow-1 pointer-events-none rounded-full" />
+      <div className="absolute top-200 right-1/4 h-225 w-225 mesh-glow-2 pointer-events-none rounded-full" />
       <FinancialNumbersBackground />
 
       {/* ---------------- ANNOUNCEMENT BANNER ---------------- */}
@@ -308,10 +308,10 @@ export default function Page() {
       </div>
 
       {/* ---------------- NAVBAR ---------------- */}
-      <nav className="sticky top-0 z-50 bg-[#F8FAFC]/90 backdrop-blur-md border-b border-slate-200/50 px-6 py-5 relative z-40">
+      <nav className="relative top-0 z-40 bg-bg-soft/90 backdrop-blur-md border-b border-slate-200/50 px-6 py-5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button onClick={() => scrollToSection("hero")} className="flex items-center gap-3 hover:opacity-90 transition">
-            <div className="h-10 w-10 rounded-2xl bg-[#0B5D4B] flex items-center justify-center shadow-lg shadow-[#0B5D4B]/15">
+            <div className="h-10 w-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/15">
               <Layers className="text-white h-5 w-5" />
             </div>
             <span className="font-display text-2xl font-black tracking-tight text-primary">
@@ -332,22 +332,22 @@ export default function Page() {
             <NotificationBell isAuthenticated={isAuthenticated} />
 
             {isAuthenticated ? (
-              <Link 
-                href="/dashboard" 
+              <Link
+                href="/dashboard"
                 className="bg-primary hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-7 py-3 rounded-full transition shadow-xl shadow-primary/10 uppercase tracking-widest flex items-center justify-center gap-1.5"
               >
                 Access Sandbox <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
               <>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs md:text-sm font-bold px-5 py-3 rounded-full transition uppercase tracking-widest"
                 >
                   Sign In
                 </Link>
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="bg-primary hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-7 py-3 rounded-full transition shadow-xl shadow-primary/10 uppercase tracking-widest flex items-center justify-center"
                 >
                   Get Started
@@ -360,7 +360,7 @@ export default function Page() {
 
       {/* ---------------- MAIN WEBSITE LANDING PAGE ---------------- */}
       <div id="hero" className="w-full relative z-10">
-        
+
         {/* HERO SECTION */}
         <section className="max-w-7xl mx-auto px-6 pt-24 pb-32 lg:pt-32 lg:pb-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           <div className="lg:col-span-6 flex flex-col items-start text-left">
@@ -368,9 +368,9 @@ export default function Page() {
               <Zap className="h-4 w-4 text-accent animate-pulse" />
               ✨ AI Financial Operating System
             </div>
-            
+
             <h1 className="font-display text-6xl lg:text-8xl font-black text-dark tracking-tight leading-[1.15] mb-8">
-              Your Family's<br/>
+              Your Family's<br />
               <span className="designer-gradient-text font-black">AI CFO.</span>
             </h1>
 
@@ -379,8 +379,8 @@ export default function Page() {
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mb-16 w-full sm:w-auto">
-              <button 
-                onClick={() => scrollToSection("sandbox")} 
+              <button
+                onClick={() => scrollToSection("sandbox")}
                 className="bg-primary hover:bg-[#074739] text-white font-bold px-9 py-5 rounded-full transition shadow-2xl shadow-primary/20 flex items-center gap-2.5 text-xs md:text-sm uppercase tracking-widest w-full sm:w-auto justify-center"
               >
                 Launch Simulation Sandbox <ArrowRight className="h-5 w-5" />
@@ -405,18 +405,18 @@ export default function Page() {
 
           {/* HERO RIGHT COLUMN - FLOATING DECISION ENGINE */}
           <div className="lg:col-span-6 relative flex justify-center items-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary to-emerald-950 rounded-4xl opacity-90 scale-95 overflow-hidden shadow-2xl" style={{ borderRadius: "120px 40px 120px 40px" }} />
-            
-            <motion.div 
+            <div className="absolute inset-0 bg-linear-gradient-to-tr from-primary to-emerald-950 rounded-4xl opacity-90 scale-95 overflow-hidden shadow-2xl" style={{ borderRadius: "120px 40px 120px 40px" }} />
+
+            <motion.div
               initial={{ y: 10 }}
               animate={{ y: -10 }}
               transition={{ repeat: Infinity, repeatType: "reverse", duration: 5, ease: "easeInOut" }}
-              className="relative z-10 p-6 flex justify-center items-center max-w-[430px]"
+              className="relative z-10 p-6 flex justify-center items-center max-w-107.5"
             >
-              <img 
-                src="/indian_user_hero.png" 
-                alt="ArthAI Advisory Loop" 
-                className="w-full h-auto rounded-3xl object-contain drop-shadow-2xl border border-white/10" 
+              <img
+                src="/indian_user_hero.png"
+                alt="ArthAI Advisory Loop"
+                className="w-full h-auto rounded-3xl object-contain drop-shadow-2xl border border-white/10"
                 style={{ borderRadius: "80px 30px 80px 30px" }}
               />
             </motion.div>
@@ -433,17 +433,17 @@ export default function Page() {
 
           <div className="relative w-full max-w-6xl py-4">
             {/* Connecting Line (Desktop) */}
-            <div className="absolute top-[56px] left-[5%] right-[5%] h-0.5 bg-slate-200/50 hidden lg:block overflow-hidden pointer-events-none">
-              <div className="h-full bg-gradient-to-r from-accent via-emerald-500 to-transparent w-[30%] absolute animate-pulse-line-h" />
+            <div className="absolute top-14 left-[5%] right-[5%] h-0.5 bg-slate-200/50 hidden lg:block overflow-hidden pointer-events-none">
+              <div className="h-full bg-linear-gradient-to-r from-accent via-emerald-500 to-transparent w-[30%] absolute animate-pulse-line-h" />
             </div>
 
             {/* Connecting Line (Mobile) */}
             <div className="absolute left-1/2 -translate-x-1/2 top-8 bottom-8 w-0.5 bg-slate-200/50 block lg:hidden overflow-hidden pointer-events-none">
-              <div className="w-full bg-gradient-to-b from-accent via-emerald-500 to-transparent h-[30%] absolute animate-pulse-line-v" />
+              <div className="w-full bg-linear-gradient-to-b from-accent via-emerald-500 to-transparent h-[30%] absolute animate-pulse-line-v" />
             </div>
 
             {/* Steps Layout */}
-            <motion.div 
+            <motion.div
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
@@ -464,7 +464,7 @@ export default function Page() {
                   </div>
 
                   {/* Content */}
-                  <div className="mt-4 space-y-2 px-1 max-w-[280px] lg:max-w-none">
+                  <div className="mt-4 space-y-2 px-1 max-w-70 lg:max-w-none">
                     <div className="space-y-0.5">
                       <span className="text-[10px] font-black text-accent tracking-widest uppercase block">
                         Step {step.step}
@@ -476,14 +476,14 @@ export default function Page() {
                         {step.subtitle}
                       </p>
                     </div>
-                    
-                    <p className="text-[11px] md:text-xs text-slate-550 font-semibold leading-relaxed min-h-[50px] opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+
+                    <p className="text-[11px] md:text-xs text-slate-550 font-semibold leading-relaxed min-h-12.5 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
                       {step.description}
                     </p>
                   </div>
 
                   {/* Node Interactive Widget */}
-                  <div className="mt-4 w-full min-h-[90px] flex items-center justify-center transform group-hover:translate-y-1 transition-transform duration-300">
+                  <div className="mt-4 w-full min-h-22.5 flex items-center justify-center transform group-hover:translate-y-1 transition-transform duration-300">
                     {step.widget}
                   </div>
                 </motion.div>
@@ -508,9 +508,9 @@ export default function Page() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <Link 
-              href="/dashboard?tab=cfo" 
-              className="premium-card p-10 text-left flex flex-col justify-between group hover:border-accent hover:shadow-lg transition block"
+            <Link
+              href="/dashboard?tab=cfo"
+              className="premium-card p-10 text-left block flex-col justify-between group hover:border-accent hover:shadow-lg transition"
             >
               <div>
                 <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250 group-hover:scale-105 transition">
@@ -526,9 +526,9 @@ export default function Page() {
               </div>
             </Link>
 
-            <Link 
-              href="/dashboard?tab=plan&subTab=decision_center" 
-              className="premium-card p-10 text-left flex flex-col justify-between group hover:border-accent hover:shadow-lg transition block"
+            <Link
+              href="/dashboard?tab=plan&subTab=decision_center"
+              className="premium-card p-10 text-left block flex-col justify-between group hover:border-accent hover:shadow-lg transition"
             >
               <div>
                 <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250 group-hover:scale-105 transition">
@@ -544,9 +544,9 @@ export default function Page() {
               </div>
             </Link>
 
-            <Link 
-              href="/dashboard?tab=plan&subTab=goals" 
-              className="premium-card p-10 text-left flex flex-col justify-between group hover:border-accent hover:shadow-lg transition block"
+            <Link
+              href="/dashboard?tab=plan&subTab=goals"
+              className="premium-card p-10 text-left block flex-col justify-between group hover:border-accent hover:shadow-lg transition"
             >
               <div>
                 <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-primary mb-8 shadow-sm shadow-emerald-250 group-hover:scale-105 transition">
@@ -575,17 +575,16 @@ export default function Page() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 bg-white border border-slate-200/60 p-8 rounded-4xl shadow-xl">
-            
+
             {/* Sidebar Navigation */}
             <aside className="lg:col-span-3 flex flex-col gap-3">
-              <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-3xl flex flex-col gap-2 max-h-[520px] overflow-y-auto">
+              <div className="bg-slate-50 border border-slate-200/50 p-5 rounded-3xl flex flex-col gap-2 max-h-130 overflow-y-auto">
                 {SIDEBAR_ITEMS.map((item) => (
-                  <button 
+                  <button
                     key={item.id}
-                    onClick={() => { setActiveTab(item.id); setWorkspaceExpanded(false); }} 
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold transition uppercase tracking-wider text-left ${
-                      activeTab === item.id ? "bg-[#0B5D4B] text-white font-black shadow-md" : "text-slate-655 hover:bg-slate-100/60"
-                    }`}
+                    onClick={() => { setActiveTab(item.id); setWorkspaceExpanded(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs md:text-sm font-bold transition uppercase tracking-wider text-left ${activeTab === item.id ? "bg-primary text-white font-black shadow-md" : "text-slate-655 hover:bg-slate-100/60"
+                      }`}
                   >
                     <item.icon className="h-4.5 w-4.5 shrink-0" />
                     <span>{item.label}</span>
@@ -595,9 +594,9 @@ export default function Page() {
             </aside>
 
             {/* Main Interactive Workspace Panels */}
-            <main className="lg:col-span-9 min-h-[480px] p-8 bg-white border border-slate-100 rounded-3xl shadow-inner relative overflow-hidden flex flex-col justify-center">
+            <main className="lg:col-span-9 min-h-120 p-8 bg-white border border-slate-100 rounded-3xl shadow-inner relative overflow-hidden flex flex-col justify-center">
               <AnimatePresence mode="wait">
-                
+
                 {!workspaceExpanded ? (
                   <motion.div
                     key={`hub-${activeTab}`}
@@ -605,7 +604,7 @@ export default function Page() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.25 }}
-                    className={`p-8 rounded-3xl bg-gradient-to-br ${WORKSPACE_CARDS[activeTab]?.gradient || "from-slate-50 to-zinc-50"} border border-slate-200/60 shadow-lg relative flex flex-col justify-between min-h-[400px] w-full`}
+                    className={`p-8 rounded-3xl bg-linear-gradient-to-br ${WORKSPACE_CARDS[activeTab]?.gradient || "from-slate-50 to-zinc-50"} border border-slate-200/60 shadow-lg relative flex flex-col justify-between min-h-100 w-full`}
                   >
                     <div className="space-y-6">
                       {/* Title block */}
@@ -665,8 +664,8 @@ export default function Page() {
                         This sandbox is a public preview using synthetic data. If you want to use the live system with actual files, mutual funds, and custom goals, please register a secure account.
                       </p>
                       <div className="pt-2">
-                        <Link 
-                          href="/register" 
+                        <Link
+                          href="/register"
                           className="bg-primary hover:bg-[#074739] text-white px-5 py-2.5 rounded-xl font-bold uppercase tracking-wider text-[10px] transition inline-block"
                         >
                           Unlock Complete Product
@@ -687,11 +686,10 @@ export default function Page() {
                 <button
                   key={idx}
                   onClick={() => { runDemoQuery(idx); scrollToSection("sandbox"); }}
-                  className={`text-left p-6 rounded-3xl border text-xs md:text-sm font-bold transition flex items-center justify-between group hover:-translate-y-1 hover:shadow-lg ${
-                    demoQuery === idx
-                      ? "bg-primary border-primary text-white shadow-xl shadow-primary/20"
-                      : "bg-white border-slate-200 text-slate-700 hover:border-accent hover:shadow-emerald-100/50"
-                  }`}
+                  className={`text-left p-6 rounded-3xl border text-xs md:text-sm font-bold transition flex items-center justify-between group hover:-translate-y-1 hover:shadow-lg ${demoQuery === idx
+                    ? "bg-primary border-primary text-white shadow-xl shadow-primary/20"
+                    : "bg-white border-slate-200 text-slate-700 hover:border-accent hover:shadow-emerald-100/50"
+                    }`}
                 >
                   <span className="pr-4 leading-snug">{preset.q}</span>
                   <ChevronRight className="h-5 w-5 shrink-0 opacity-70 group-hover:translate-x-1 transition" />

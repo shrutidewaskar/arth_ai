@@ -133,7 +133,7 @@ export function FinancialNumbersBackground() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden select-none z-0 [mask-image:linear-gradient(to_bottom,transparent_0%,black_15%,black_85%,transparent_100%)] opacity-[0.045] hover:opacity-[0.07] transition-opacity duration-1000"
+      className="pointer-events-none absolute inset-0 overflow-hidden select-none z-0 mask-[linear-gradient(to_bottom,transparent_0%,black_15%,black_85%,transparent_100%)] opacity-[0.045] hover:opacity-[0.07] transition-opacity duration-1000"
     >
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6 h-full w-full max-w-7xl mx-auto px-4 font-mono text-[11px] font-bold text-emerald-950 tracking-wider">
         {STREAM_COLUMNS.map((col, colIdx) => (

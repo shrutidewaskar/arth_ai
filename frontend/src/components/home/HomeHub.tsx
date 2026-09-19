@@ -103,7 +103,7 @@ export function HomeHub({
             <h1 className="font-display text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
               {greeting}
             </h1>
-            <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-200/60">
+            <span className="text-[10px] bg-emerald-50 text-primary font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-emerald-200/60">
               Canonical Pulse
             </span>
           </div>
@@ -122,7 +122,7 @@ export function HomeHub({
           </button>
           <button
             onClick={() => onNavigateHub("cfo", "chat")}
-            className="text-xs bg-[#0B5D4B] hover:bg-[#074739] text-white px-4 py-2 rounded-xl font-bold transition shadow-sm flex items-center gap-1.5"
+            className="text-xs bg-primary hover:bg-[#074739] text-white px-4 py-2 rounded-xl font-bold transition shadow-sm flex items-center gap-1.5"
           >
             <Sparkles className="h-3.5 w-3.5" />
             AI CFO
@@ -169,11 +169,10 @@ export function HomeHub({
               Monthly Surplus
             </span>
             <p
-              className={`text-2xl font-black ${
-                monthlySurplus !== undefined && monthlySurplus < 0
-                  ? "text-rose-600"
-                  : "text-slate-900"
-              }`}
+              className={`text-2xl font-black ${monthlySurplus !== undefined && monthlySurplus < 0
+                ? "text-rose-600"
+                : "text-slate-900"
+                }`}
             >
               {monthlySurplus !== undefined && monthlyIncome !== undefined && monthlyIncome > 0
                 ? `₹${monthlySurplus.toLocaleString()}`
@@ -220,11 +219,10 @@ export function HomeHub({
               Debt Service (DTI)
             </span>
             <p
-              className={`text-2xl font-black ${
-                (summaryData?.financial_health?.dti_ratio_pct ?? 0) > 35
-                  ? "text-rose-600"
-                  : "text-slate-900"
-              }`}
+              className={`text-2xl font-black ${(summaryData?.financial_health?.dti_ratio_pct ?? 0) > 35
+                ? "text-rose-600"
+                : "text-slate-900"
+                }`}
             >
               {monthlyIncome !== undefined && monthlyIncome > 0
                 ? `${(summaryData?.financial_health?.dti_ratio_pct ?? 0).toFixed(1)}%`
@@ -263,7 +261,7 @@ export function HomeHub({
 
           <button
             onClick={() => onNavigateHub("money", "overview")}
-            className="text-xs text-[#0B5D4B] font-bold hover:underline self-start sm:self-center"
+            className="text-xs text-primary font-bold hover:underline self-start sm:self-center"
           >
             Explore Full Ledger &rarr;
           </button>
@@ -300,11 +298,10 @@ export function HomeHub({
                 <div className="p-3 bg-slate-50 rounded-2xl flex items-center justify-between">
                   <span className="text-slate-600">Debt Pressure (DTI)</span>
                   <span
-                    className={`font-black ${
-                      (summaryData?.financial_health?.dti_ratio_pct ?? 0) > 35
-                        ? "text-rose-600"
-                        : "text-slate-800"
-                    }`}
+                    className={`font-black ${(summaryData?.financial_health?.dti_ratio_pct ?? 0) > 35
+                      ? "text-rose-600"
+                      : "text-slate-800"
+                      }`}
                   >
                     {summaryData
                       ? `${summaryData.financial_health.dti_ratio_pct.toFixed(1)}%`
@@ -381,10 +378,10 @@ export function HomeHub({
                 item.severity === "critical"
                   ? "bg-rose-50 text-rose-800 border-rose-200"
                   : item.severity === "high"
-                  ? "bg-amber-50 text-amber-800 border-amber-200"
-                  : item.severity === "positive"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-blue-50 text-blue-800 border-blue-200";
+                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                    : item.severity === "positive"
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                      : "bg-blue-50 text-blue-800 border-blue-200";
 
               return (
                 <div
@@ -431,7 +428,7 @@ export function HomeHub({
                           onNavigateHub("money", "overview");
                         }
                       }}
-                      className="text-xs font-bold text-white bg-[#0B5D4B] hover:bg-[#074739] px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"
+                      className="text-xs font-bold text-white bg-primary hover:bg-[#074739] px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5"
                     >
                       {item.action_label} &rarr;
                     </button>
@@ -471,7 +468,7 @@ export function HomeHub({
                 onNavigateHub("money", "overview");
               }
             }}
-            className="w-full text-xs font-bold text-white bg-[#0B5D4B] hover:bg-[#074739] py-3 rounded-2xl transition shadow-sm flex items-center justify-center gap-2"
+            className="w-full text-xs font-bold text-white bg-primary hover:bg-[#074739] py-3 rounded-2xl transition shadow-sm flex items-center justify-center gap-2"
           >
             {nextActionLabel} &rarr;
           </button>

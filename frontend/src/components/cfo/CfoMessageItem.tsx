@@ -27,10 +27,10 @@ export function CfoMessageItem({ message, onNavigateHub }: CfoMessageItemProps) 
   if (isUser) {
     return (
       <div className="flex justify-end items-start gap-2.5">
-        <div className="bg-[#0B5D4B] text-white p-4 rounded-3xl rounded-tr-xs max-w-xl text-xs sm:text-sm font-semibold shadow-xs leading-relaxed">
+        <div className="bg-primary text-white p-4 rounded-3xl rounded-tr-xs max-w-xl text-xs sm:text-sm font-semibold shadow-xs leading-relaxed">
           {message.text}
         </div>
-        <div className="h-8 w-8 rounded-full bg-emerald-100 border border-emerald-200 text-[#0B5D4B] flex items-center justify-center shrink-0">
+        <div className="h-8 w-8 rounded-full bg-emerald-100 border border-emerald-200 text-primary flex items-center justify-center shrink-0">
           <User className="h-4 w-4" />
         </div>
       </div>
@@ -89,11 +89,11 @@ export function CfoMessageItem({ message, onNavigateHub }: CfoMessageItemProps) 
     assessment && assessmentStyles[assessment.label]
       ? assessmentStyles[assessment.label]
       : {
-          bg: "bg-slate-100",
-          text: "text-slate-800",
-          border: "border-slate-200",
-          icon: Brain,
-        };
+        bg: "bg-slate-100",
+        text: "text-slate-800",
+        border: "border-slate-200",
+        icon: Brain,
+      };
 
   const AssessmentIcon = currentAssessmentStyle.icon;
 
@@ -156,10 +156,10 @@ export function CfoMessageItem({ message, onNavigateHub }: CfoMessageItemProps) 
                       ? fact.unit === "INR" || !fact.unit
                         ? `₹${fact.value.toLocaleString("en-IN")}`
                         : fact.unit === "percent"
-                        ? `${fact.value}%`
-                        : fact.unit === "months"
-                        ? `${fact.value} mo`
-                        : `${fact.value} ${fact.unit}`
+                          ? `${fact.value}%`
+                          : fact.unit === "months"
+                            ? `${fact.value} mo`
+                            : `${fact.value} ${fact.unit}`
                       : String(fact.value)}
                   </span>
                 </div>
@@ -171,7 +171,7 @@ export function CfoMessageItem({ message, onNavigateHub }: CfoMessageItemProps) 
         {/* Recommendation Box */}
         {structured?.recommendation && (
           <div className="p-3.5 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl space-y-1 text-xs">
-            <span className="text-[10px] font-black text-[#0B5D4B] uppercase tracking-wider block">
+            <span className="text-[10px] font-black text-primary uppercase tracking-wider block">
               Deterministic Action Recommendation
             </span>
             <p className="font-bold text-slate-800">{structured.recommendation}</p>
@@ -184,7 +184,7 @@ export function CfoMessageItem({ message, onNavigateHub }: CfoMessageItemProps) 
             <span className="text-[10px] font-bold text-slate-450 uppercase block">
               Supporting Evidence Points
             </span>
-            <ul className="space-y-1 text-xs font-semibold text-slate-700 pl-3 border-l-2 border-[#0B5D4B]">
+            <ul className="space-y-1 text-xs font-semibold text-slate-700 pl-3 border-l-2 border-primary">
               {reasons.map((r, idx) => (
                 <li key={idx} className="leading-relaxed">
                   {r}
@@ -223,7 +223,7 @@ export function CfoMessageItem({ message, onNavigateHub }: CfoMessageItemProps) 
           {/* Provenance Footnote */}
           {evidenceUsed.length > 0 ? (
             <div className="flex items-center gap-1.5 text-slate-500 font-bold">
-              <Layers className="h-3.5 w-3.5 text-[#0B5D4B]" />
+              <Layers className="h-3.5 w-3.5 text-primary" />
               <span>Grounded via: {evidenceUsed.join(", ")}</span>
             </div>
           ) : (
@@ -234,7 +234,7 @@ export function CfoMessageItem({ message, onNavigateHub }: CfoMessageItemProps) 
           {message.deepLink && onNavigateHub && (
             <button
               onClick={() => onNavigateHub(message.deepLink!.hub, message.deepLink!.subTab)}
-              className="inline-flex items-center gap-1 text-[#0B5D4B] hover:text-[#074739] font-black transition self-end sm:self-center"
+              className="inline-flex items-center gap-1 text-primary hover:text-[#074739] font-black transition self-end sm:self-center"
             >
               <span>{message.deepLink.label}</span>
               <ArrowRight className="h-3 w-3" />

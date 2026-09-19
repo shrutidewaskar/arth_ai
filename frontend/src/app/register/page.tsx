@@ -68,14 +68,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <main className="min-h-screen bg-bg-soft flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background gradients */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-50 rounded-full blur-3xl opacity-60 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-50 rounded-full blur-3xl opacity-60 translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition mb-8 ml-4 sm:ml-0"
         >
           <ArrowLeft className="h-4.5 w-4.5" /> Back to landing
@@ -98,7 +98,7 @@ export default function RegisterPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
         <div className="bg-white py-8 px-6 shadow-xl border border-slate-200/50 rounded-4xl sm:px-10">
           {success ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="text-center py-6 space-y-4"
@@ -227,7 +227,7 @@ export default function RegisterPage() {
               </div>
 
               <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-emerald-700/80 bg-emerald-50/50 py-2.5 rounded-xl border border-emerald-100/40">
-                <ShieldCheck className="h-4 w-4 text-[#22c55e]" /> Bank-grade AES-256 secure session vault
+                <ShieldCheck className="h-4 w-4 text-[#22c55e]" /> Tenant-isolated secure session
               </div>
             </form>
           )}

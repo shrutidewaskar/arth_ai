@@ -127,7 +127,7 @@ export function MoneyHub({
             <h2 className="font-display text-2xl font-black text-slate-800 tracking-tight">
               Money & Balance Sheet Workspace
             </h2>
-            <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] bg-emerald-50 text-primary font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
               Canonical Financial Ledger
             </span>
           </div>
@@ -150,11 +150,10 @@ export function MoneyHub({
             <button
               key={tab.id}
               onClick={() => setSubTab(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                subTab === tab.id
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${subTab === tab.id
                   ? "bg-white text-slate-900 shadow-sm font-black"
                   : "text-slate-600 hover:text-slate-900"
-              }`}
+                }`}
             >
               {tab.label}
             </button>

@@ -57,14 +57,14 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <main className="min-h-screen bg-bg-soft flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background gradients */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-50 rounded-full blur-3xl opacity-60 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-50 rounded-full blur-3xl opacity-60 translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition mb-8 ml-4 sm:ml-0"
         >
           <ArrowLeft className="h-4.5 w-4.5" /> Back to landing
@@ -116,6 +116,36 @@ export default function LoginPage() {
                 <label htmlFor="password" className="block text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Password
                 </label>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!email.trim()) {
+                      setErrorMsg("Please enter your email above to receive a password reset link.");
+                      return;
+                    }
+                    setLoading(true);
+                    setErrorMsg(null);
+                    try {
+                      const supabase = createClient();
+                      const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+                      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+                        redirectTo: `${appUrl}/auth/callback?next=/auth/reset-password`,
+                      });
+                      if (error) {
+                        setErrorMsg(error.message);
+                      } else {
+                        setErrorMsg("Password reset email sent! Check your inbox for the link.");
+                      }
+                    } catch (err: any) {
+                      setErrorMsg(err.message || "Failed to request password reset.");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="text-xs font-bold text-primary hover:underline"
+                >
+                  Forgot password?
+                </button>
               </div>
               <input
                 id="password"
@@ -151,7 +181,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-emerald-700/80 bg-emerald-50/50 py-2.5 rounded-xl border border-emerald-100/40">
-              <Lock className="h-4 w-4 text-[#22c55e]" /> AES-256 encrypted session state
+              <Lock className="h-4 w-4 text-[#22c55e]" /> Authenticated & tenant-isolated session
             </div>
           </form>
         </div>

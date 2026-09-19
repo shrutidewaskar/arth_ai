@@ -178,7 +178,7 @@ export function EvidenceStep({
           <h3 className="font-display text-xl font-black text-slate-800 tracking-tight">
             Connect Financial Evidence (Optional)
           </h3>
-          <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] font-black px-2.5 py-1 rounded-full uppercase">
+          <span className="text-[10px] bg-emerald-50 text-primary font-black px-2.5 py-1 rounded-full uppercase">
             Human-In-The-Loop Gate
           </span>
         </div>
@@ -189,13 +189,12 @@ export function EvidenceStep({
 
       {feedback && (
         <div
-          className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2.5 ${
-            feedback.type === "success"
-              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-              : feedback.type === "info"
+          className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2.5 ${feedback.type === "success"
+            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+            : feedback.type === "info"
               ? "bg-blue-50 text-blue-800 border-blue-200"
               : "bg-rose-50 text-rose-800 border-rose-200"
-          }`}
+            }`}
         >
           {feedback.type === "success" ? (
             <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
@@ -220,9 +219,8 @@ export function EvidenceStep({
         />
         <label
           htmlFor="onboarding-pdf-uploader"
-          className={`cursor-pointer inline-flex items-center gap-2 px-6 py-3.5 bg-[#0B5D4B] text-white rounded-2xl text-xs font-black uppercase tracking-wider hover:bg-[#074739] transition shadow-md ${
-            uploading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`cursor-pointer inline-flex items-center gap-2 px-6 py-3.5 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-wider hover:bg-[#074739] transition shadow-md ${uploading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
         >
           {uploading ? (
             <>
@@ -254,7 +252,7 @@ export function EvidenceStep({
                 className="bg-white p-3.5 rounded-2xl border border-slate-200 flex items-center justify-between text-xs"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-emerald-50 text-[#0B5D4B] flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-xl bg-emerald-50 text-primary flex items-center justify-center">
                     <FileText className="h-4 w-4" />
                   </div>
                   <div>
@@ -320,7 +318,7 @@ export function EvidenceStep({
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => handleApprove(cand.id)}
-                    className="px-3 py-1.5 bg-[#0B5D4B] hover:bg-[#074739] text-white text-xs font-bold rounded-xl flex items-center gap-1 transition shadow-sm"
+                    className="px-3 py-1.5 bg-primary hover:bg-[#074739] text-white text-xs font-bold rounded-xl flex items-center gap-1 transition shadow-sm"
                   >
                     <Check className="h-3.5 w-3.5" /> Approve
                   </button>
@@ -380,7 +378,7 @@ export function EvidenceStep({
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0B5D4B] text-white hover:bg-[#074739]"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-primary text-white hover:bg-[#074739]"
               >
                 Save & Approve
               </button>
@@ -391,7 +389,7 @@ export function EvidenceStep({
 
       {/* Helper callout */}
       <div className="p-4 bg-emerald-50/60 border border-emerald-100/80 rounded-2xl flex items-start gap-3 text-xs text-slate-600 font-medium">
-        <ShieldCheck className="h-5 w-5 text-[#0B5D4B] shrink-0 mt-0.5" />
+        <ShieldCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
         <p>
           You can skip uploading documents now and add them anytime later in the <strong>Evidence Hub</strong>. Manual entries from earlier steps will form your baseline snapshot.
         </p>

@@ -309,7 +309,7 @@ export function EvidenceHub({
             <h2 className="font-display text-2xl font-black text-slate-800 tracking-tight">
               Evidence Center
             </h2>
-            <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] font-black px-2.5 py-1 rounded-full uppercase border border-emerald-200/60">
+            <span className="text-[10px] bg-emerald-50 text-primary font-black px-2.5 py-1 rounded-full uppercase border border-emerald-200/60">
               Explainability & Truth
             </span>
           </div>
@@ -322,40 +322,37 @@ export function EvidenceHub({
         <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
           <button
             onClick={() => setSubTab("vault")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
-              subTab === "vault"
-                ? "bg-white text-slate-900 shadow-xs font-black"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${subTab === "vault"
+              ? "bg-white text-slate-900 shadow-xs font-black"
+              : "text-slate-600 hover:text-slate-900"
+              }`}
           >
             Documents ({vaultDocuments.length})
           </button>
           <button
             onClick={() => setSubTab("review_queue")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-              subTab === "review_queue"
-                ? "bg-white text-slate-900 shadow-xs font-black"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${subTab === "review_queue"
+              ? "bg-white text-slate-900 shadow-xs font-black"
+              : "text-slate-600 hover:text-slate-900"
+              }`}
           >
             <span>Review Queue</span>
             {pendingCount > 0 && (
-              <span className="h-4 min-w-[16px] px-1 bg-amber-600 text-white text-[9px] rounded-full flex items-center justify-center font-black">
+              <span className="h-4 min-w-4 px-1 bg-amber-600 text-white text-[9px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
               </span>
             )}
           </button>
           <button
             onClick={() => setSubTab("conflicts")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-              subTab === "conflicts"
-                ? "bg-white text-slate-900 shadow-xs font-black"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${subTab === "conflicts"
+              ? "bg-white text-slate-900 shadow-xs font-black"
+              : "text-slate-600 hover:text-slate-900"
+              }`}
           >
             <span>Conflicts</span>
             {conflicts.length > 0 && (
-              <span className="h-4 min-w-[16px] px-1 bg-rose-600 text-white text-[9px] rounded-full flex items-center justify-center font-black">
+              <span className="h-4 min-w-4 px-1 bg-rose-600 text-white text-[9px] rounded-full flex items-center justify-center font-black">
                 {conflicts.length}
               </span>
             )}
@@ -370,11 +367,10 @@ export function EvidenceHub({
         <div className="space-y-6">
           {uploadFeedback && (
             <div
-              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
-                uploadFeedback.type === "success"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-rose-50 text-rose-800 border-rose-200"
-              }`}
+              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${uploadFeedback.type === "success"
+                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                : "bg-rose-50 text-rose-800 border-rose-200"
+                }`}
             >
               {uploadFeedback.type === "success" ? (
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
@@ -386,7 +382,7 @@ export function EvidenceHub({
           )}
 
           {/* Upload Area */}
-          <div className="bg-gradient-to-b from-slate-50 to-white border-2 border-dashed border-slate-200/90 p-8 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition hover:border-[#0B5D4B]/40">
+          <div className="bg-linear-gradient-to-b from-slate-50 to-white border-2 border-dashed border-slate-200/90 p-8 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition hover:border-primary/40">
             <input
               type="file"
               id="pdf-vault-uploader"
@@ -397,9 +393,8 @@ export function EvidenceHub({
             />
             <label
               htmlFor="pdf-vault-uploader"
-              className={`cursor-pointer inline-flex items-center gap-2 px-6 py-3.5 bg-[#0B5D4B] text-white rounded-2xl text-xs font-black hover:bg-[#074739] transition shadow-md ${
-                uploading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`cursor-pointer inline-flex items-center gap-2 px-6 py-3.5 bg-primary text-white rounded-2xl text-xs font-black hover:bg-[#074739] transition shadow-md ${uploading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               <Upload className="h-4 w-4" />
               {uploading ? "Ingesting, Parsing & Extracting Facts..." : "Upload Financial Document (PDF)"}
@@ -419,7 +414,7 @@ export function EvidenceHub({
                   placeholder="Search documents by filename..."
                   value={docSearchQuery}
                   onChange={(e) => setDocSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0B5D4B]"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -461,8 +456,8 @@ export function EvidenceHub({
                   doc.status === "PROCESSED"
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                     : doc.status === "FAILED"
-                    ? "bg-rose-50 text-rose-700 border-rose-200"
-                    : "bg-amber-50 text-amber-700 border-amber-200";
+                      ? "bg-rose-50 text-rose-700 border-rose-200"
+                      : "bg-amber-50 text-amber-700 border-amber-200";
 
                 return (
                   <div
@@ -470,7 +465,7 @@ export function EvidenceHub({
                     className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   >
                     <div className="flex items-start sm:items-center gap-3">
-                      <div className="h-10 w-10 shrink-0 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[#0B5D4B]">
+                      <div className="h-10 w-10 shrink-0 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-primary">
                         <FileText className="h-5 w-5" />
                       </div>
                       <div>
@@ -528,11 +523,10 @@ export function EvidenceHub({
         <div className="space-y-6">
           {candidateFeedback && (
             <div
-              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
-                candidateFeedback.type === "success"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-rose-50 text-rose-800 border-rose-200"
-              }`}
+              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${candidateFeedback.type === "success"
+                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                : "bg-rose-50 text-rose-800 border-rose-200"
+                }`}
             >
               {candidateFeedback.type === "success" ? (
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
@@ -566,11 +560,10 @@ export function EvidenceHub({
                 <button
                   key={f.value}
                   onClick={() => setCandidateStatusFilter(f.value)}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition ${
-                    candidateStatusFilter === f.value
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition ${candidateStatusFilter === f.value
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                    }`}
                 >
                   {f.label}
                 </button>
@@ -603,13 +596,12 @@ export function EvidenceHub({
                 return (
                   <div
                     key={cand.id}
-                    className={`bg-white p-5 rounded-2xl border shadow-xs transition space-y-3 ${
-                      isPending
-                        ? "border-amber-200/80 hover:border-amber-300"
-                        : isApproved
+                    className={`bg-white p-5 rounded-2xl border shadow-xs transition space-y-3 ${isPending
+                      ? "border-amber-200/80 hover:border-amber-300"
+                      : isApproved
                         ? "border-emerald-200/60 bg-emerald-50/10"
                         : "border-slate-200 opacity-80"
-                    }`}
+                      }`}
                   >
                     {/* Header: Candidate Type, Status, Confidence */}
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
@@ -655,7 +647,7 @@ export function EvidenceHub({
                       <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 font-medium">
                         {cand.provenance?.file_name && (
                           <span className="flex items-center gap-1 text-slate-700 font-bold">
-                            <FileText className="h-3.5 w-3.5 text-[#0B5D4B]" />
+                            <FileText className="h-3.5 w-3.5 text-primary" />
                             {cand.provenance.file_name}
                           </span>
                         )}
@@ -676,7 +668,7 @@ export function EvidenceHub({
                         <div className="flex items-center gap-2 shrink-0">
                           <button
                             onClick={() => handleApprove(cand.id)}
-                            className="px-3.5 py-1.5 bg-[#0B5D4B] hover:bg-[#074739] text-white text-xs font-black rounded-xl flex items-center gap-1 transition shadow-xs"
+                            className="px-3.5 py-1.5 bg-primary hover:bg-[#074739] text-white text-xs font-black rounded-xl flex items-center gap-1 transition shadow-xs"
                           >
                             <Check className="h-3.5 w-3.5" /> Approve
                           </button>
@@ -716,11 +708,10 @@ export function EvidenceHub({
         <div className="space-y-6">
           {conflictFeedback && (
             <div
-              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
-                conflictFeedback.type === "success"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-rose-50 text-rose-800 border-rose-200"
-              }`}
+              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${conflictFeedback.type === "success"
+                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                : "bg-rose-50 text-rose-800 border-rose-200"
+                }`}
             >
               {conflictFeedback.type === "success" ? (
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
@@ -801,7 +792,7 @@ export function EvidenceHub({
                         <span className="text-[10px] text-emerald-700 font-bold block uppercase">
                           New Suggested Evidence
                         </span>
-                        <div className="text-sm font-black text-[#0B5D4B]">
+                        <div className="text-sm font-black text-primary">
                           {typeof conf.suggested_value === "number"
                             ? `₹${conf.suggested_value.toLocaleString("en-IN")}`
                             : String(conf.suggested_value)}
@@ -845,7 +836,7 @@ export function EvidenceHub({
                       </button>
                       <button
                         onClick={() => handleResolveConflict(candId, "ACCEPT_SUGGESTED")}
-                        className="px-4 py-2 bg-[#0B5D4B] hover:bg-[#074739] text-white text-xs font-black rounded-xl transition shadow-xs flex items-center gap-1.5"
+                        className="px-4 py-2 bg-primary hover:bg-[#074739] text-white text-xs font-black rounded-xl transition shadow-xs flex items-center gap-1.5"
                       >
                         <span>Accept Suggested</span>
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -868,7 +859,7 @@ export function EvidenceHub({
             {/* Header */}
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-emerald-100 text-[#0B5D4B] flex items-center justify-center">
+                <div className="h-10 w-10 rounded-2xl bg-emerald-100 text-primary flex items-center justify-center">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
@@ -950,7 +941,7 @@ export function EvidenceHub({
                                 </span>
                                 <span className="font-bold text-slate-800">{fact.fact_key}</span>
                               </div>
-                              <div className="text-xs font-black text-[#0B5D4B] mt-1">
+                              <div className="text-xs font-black text-primary mt-1">
                                 {typeof fact.fact_value === "number"
                                   ? `₹${fact.fact_value.toLocaleString("en-IN")}`
                                   : String(fact.fact_value)}
@@ -1028,7 +1019,7 @@ export function EvidenceHub({
                         [k]: typeof v === "number" ? Number(e.target.value) : e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-[#0B5D4B]"
+                    className="w-full px-3 py-2 border rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-primary"
                   />
                 </div>
               ))}
@@ -1045,7 +1036,7 @@ export function EvidenceHub({
               <button
                 onClick={handleSaveEdit}
                 disabled={savingEdit}
-                className="px-4 py-2 rounded-xl text-xs font-black bg-[#0B5D4B] text-white hover:bg-[#074739] transition shadow-xs flex items-center gap-2"
+                className="px-4 py-2 rounded-xl text-xs font-black bg-primary text-white hover:bg-[#074739] transition shadow-xs flex items-center gap-2"
               >
                 {savingEdit ? "Saving..." : "Save & Commit to Ledger"}
               </button>

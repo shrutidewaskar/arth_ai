@@ -88,7 +88,7 @@ export function AssetsSection({
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#0B5D4B] hover:bg-[#074739] text-white rounded-xl text-xs font-bold transition shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-[#074739] text-white rounded-xl text-xs font-bold transition shadow-sm"
           >
             <Plus className="h-3.5 w-3.5" />
             Add Asset
@@ -223,7 +223,7 @@ export function AssetsSection({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 text-xs font-black text-white bg-[#0B5D4B] hover:bg-[#074739] rounded-xl transition shadow-sm"
+                  className="px-4 py-2 text-xs font-black text-white bg-primary hover:bg-[#074739] rounded-xl transition shadow-sm"
                 >
                   {loading ? "Saving..." : "Save Asset"}
                 </button>

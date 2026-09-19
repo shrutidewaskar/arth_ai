@@ -437,6 +437,33 @@ export async function queryCfo(query: string): Promise<any> {
   return res.json();
 }
 
+// 10. Financial Profile
+export async function getProfile(): Promise<any> {
+  const res = await apiGet("/api/v1/profile");
+  if (!res.ok) throw new Error(`Failed to fetch profile (${res.status})`);
+  return res.json();
+}
+
+export async function updateProfile(profileUpdate: {
+  occupation?: string;
+  city?: string;
+  age?: number;
+  marital_status?: string;
+  dependents?: number;
+  risk_appetite?: string;
+  currency?: string;
+  monthly_income?: number;
+  monthly_expenses?: number;
+  monthly_savings?: number;
+  emergency_fund?: number;
+  credit_score?: number;
+}): Promise<any> {
+  const res = await apiPut("/api/v1/profile", profileUpdate);
+  if (!res.ok) throw new Error(`Failed to update profile (${res.status})`);
+  return res.json();
+}
+
+
 
 
 

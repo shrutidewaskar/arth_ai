@@ -254,7 +254,7 @@ export function PlanHub({
             <h2 className="font-display text-2xl font-black text-slate-800 tracking-tight">
               Planning & Decision Center
             </h2>
-            <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] font-black px-2.5 py-1 rounded-full uppercase border border-emerald-200/60">
+            <span className="text-[10px] bg-emerald-50 text-primary font-black px-2.5 py-1 rounded-full uppercase border border-emerald-200/60">
               Deterministic Reasoning
             </span>
           </div>
@@ -274,11 +274,10 @@ export function PlanHub({
             <button
               key={tab.id}
               onClick={() => setSubTab(tab.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
-                subTab === tab.id
-                  ? "bg-white text-slate-900 shadow-xs font-black"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${subTab === tab.id
+                ? "bg-white text-slate-900 shadow-xs font-black"
+                : "text-slate-600 hover:text-slate-900"
+                }`}
             >
               {tab.label}
             </button>
@@ -293,11 +292,10 @@ export function PlanHub({
         <div className="space-y-6">
           {goalFeedback && (
             <div
-              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
-                goalFeedback.type === "success"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-rose-50 text-rose-800 border-rose-200"
-              }`}
+              className={`p-4 rounded-2xl text-xs font-bold border flex items-center gap-2 ${goalFeedback.type === "success"
+                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                : "bg-rose-50 text-rose-800 border-rose-200"
+                }`}
             >
               {goalFeedback.type === "success" ? (
                 <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
@@ -326,11 +324,10 @@ export function PlanHub({
               <div>
                 <span className="text-[10px] text-slate-450 font-bold block uppercase">Available Buffer After Goals</span>
                 <p
-                  className={`text-sm font-black mt-0.5 ${
-                    feasibilityData.cashflow_capacity.available_after_goal_contributions < 0
-                      ? "text-rose-600"
-                      : "text-[#0B5D4B]"
-                  }`}
+                  className={`text-sm font-black mt-0.5 ${feasibilityData.cashflow_capacity.available_after_goal_contributions < 0
+                    ? "text-rose-600"
+                    : "text-primary"
+                    }`}
                 >
                   ₹{feasibilityData.cashflow_capacity.available_after_goal_contributions.toLocaleString("en-IN")}
                 </p>
@@ -359,7 +356,7 @@ export function PlanHub({
             </div>
             <button
               onClick={handleOpenCreateGoal}
-              className="px-4 py-2 bg-[#0B5D4B] hover:bg-[#074739] text-white text-xs font-black rounded-xl flex items-center gap-1.5 transition shadow-xs"
+              className="px-4 py-2 bg-primary hover:bg-[#074739] text-white text-xs font-black rounded-xl flex items-center gap-1.5 transition shadow-xs"
             >
               <Plus className="h-4 w-4" />
               <span>Add Goal</span>
@@ -397,17 +394,15 @@ export function PlanHub({
                         </div>
                         <div className="flex gap-1.5 items-center flex-wrap justify-end">
                           <span
-                            className={`text-[9px] px-2 py-0.5 rounded font-black uppercase ${
-                              g.priority === "Critical" ? "bg-rose-50 text-rose-700 border border-rose-200" : "bg-slate-100 text-slate-700"
-                            }`}
+                            className={`text-[9px] px-2 py-0.5 rounded font-black uppercase ${g.priority === "Critical" ? "bg-rose-50 text-rose-700 border border-rose-200" : "bg-slate-100 text-slate-700"
+                              }`}
                           >
                             {g.priority}
                           </span>
                           {fGoal && (
                             <span
-                              className={`text-[9px] px-2 py-0.5 rounded font-black uppercase border ${
-                                statusColors[fGoal.status] || "bg-slate-50 text-slate-600"
-                              }`}
+                              className={`text-[9px] px-2 py-0.5 rounded font-black uppercase border ${statusColors[fGoal.status] || "bg-slate-50 text-slate-600"
+                                }`}
                             >
                               {fGoal.status.replace(/_/g, " ")}
                             </span>
@@ -425,7 +420,7 @@ export function PlanHub({
                         </div>
                         <div>
                           <span className="text-slate-450 block text-[10px] font-bold uppercase">Current Saved</span>
-                          <span className="font-black text-[#0B5D4B] text-sm">
+                          <span className="font-black text-primary text-sm">
                             ₹{g.saved_amount.toLocaleString("en-IN")}
                           </span>
                         </div>
@@ -439,7 +434,7 @@ export function PlanHub({
                         </div>
                         <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                           <div
-                            className="bg-[#0B5D4B] h-full rounded-full transition-all"
+                            className="bg-primary h-full rounded-full transition-all"
                             style={{ width: `${Math.min(100, Math.max(0, progressPct))}%` }}
                           />
                         </div>
@@ -454,13 +449,13 @@ export function PlanHub({
                               {fGoal.required_monthly_contribution !== undefined && fGoal.required_monthly_contribution !== null
                                 ? `₹${Math.round(fGoal.required_monthly_contribution).toLocaleString("en-IN")}`
                                 : fGoal.required_monthly_savings !== undefined
-                                ? `₹${Math.round(fGoal.required_monthly_savings).toLocaleString("en-IN")}`
-                                : "—"}
+                                  ? `₹${Math.round(fGoal.required_monthly_savings).toLocaleString("en-IN")}`
+                                  : "—"}
                             </span>
                           </div>
                           <div className="flex justify-between text-[11px]">
                             <span className="text-slate-500 font-semibold">Projected Value at Horizon:</span>
-                            <span className="font-black text-[#0B5D4B]">
+                            <span className="font-black text-primary">
                               {fGoal.projected_amount !== undefined && fGoal.projected_amount !== null
                                 ? `₹${Math.round(fGoal.projected_amount).toLocaleString("en-IN")}`
                                 : "—"}
@@ -521,7 +516,7 @@ export function PlanHub({
                 Required adjustments to pursue underfunded or at-risk goals based on canonical cashflow capacity.
               </p>
             </div>
-            <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] px-3 py-1 rounded-full font-black uppercase border border-emerald-200/60">
+            <span className="text-[10px] bg-emerald-50 text-primary px-3 py-1 rounded-full font-black uppercase border border-emerald-200/60">
               Safety Verified
             </span>
           </div>
@@ -552,7 +547,7 @@ export function PlanHub({
                   {plan.steps && plan.steps.length > 0 && (
                     <div className="space-y-1.5 pt-1">
                       <span className="text-[10px] text-slate-450 font-bold uppercase block">Action Roadmap</span>
-                      <ul className="space-y-1.5 pl-4 border-l-2 border-[#0B5D4B] text-xs text-slate-700 font-semibold">
+                      <ul className="space-y-1.5 pl-4 border-l-2 border-primary text-xs text-slate-700 font-semibold">
                         {plan.steps.map((step: string, sIdx: number) => (
                           <li key={sIdx} className="leading-relaxed">
                             {step}
@@ -620,7 +615,7 @@ export function PlanHub({
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
             <div className="flex items-center justify-between border-b pb-3">
-              <div className="flex items-center gap-2 text-[#0B5D4B]">
+              <div className="flex items-center gap-2 text-primary">
                 <Target className="h-5 w-5" />
                 <h4 className="font-display text-base font-black text-slate-800">
                   {editingGoal ? "Edit Financial Goal" : "Create Financial Goal"}
@@ -645,7 +640,7 @@ export function PlanHub({
                   placeholder="e.g. Home Downpayment, Higher Education"
                   value={goalForm.goal_name}
                   onChange={(e) => setGoalForm({ ...goalForm, goal_name: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-[#0B5D4B]"
+                  className="w-full px-3 py-2 border rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -754,7 +749,7 @@ export function PlanHub({
                 <button
                   type="submit"
                   disabled={submittingGoal}
-                  className="px-4 py-2 rounded-xl text-xs font-black bg-[#0B5D4B] text-white hover:bg-[#074739] transition shadow-xs flex items-center gap-2"
+                  className="px-4 py-2 rounded-xl text-xs font-black bg-primary text-white hover:bg-[#074739] transition shadow-xs flex items-center gap-2"
                 >
                   {submittingGoal ? "Saving..." : editingGoal ? "Update Goal" : "Create Goal"}
                 </button>

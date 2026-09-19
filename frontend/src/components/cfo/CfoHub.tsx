@@ -77,7 +77,7 @@ export function CfoHub({
             <h2 className="font-display text-2xl font-black text-slate-800 tracking-tight">
               AI Family CFO
             </h2>
-            <span className="text-[10px] bg-emerald-50 text-[#0B5D4B] font-black px-2.5 py-1 rounded-full uppercase border border-emerald-200/60">
+            <span className="text-[10px] bg-emerald-50 text-primary font-black px-2.5 py-1 rounded-full uppercase border border-emerald-200/60">
               Grounded Reasoning Layer
             </span>
           </div>
@@ -88,7 +88,7 @@ export function CfoHub({
       </div>
 
       {/* Main Chat & Reasoning Container */}
-      <div className="flex flex-col h-[600px] bg-slate-50/70 rounded-3xl border border-slate-200/80 overflow-hidden relative shadow-xs">
+      <div className="flex flex-col h-150 bg-slate-50/70 rounded-3xl border border-slate-200/80 overflow-hidden relative shadow-xs">
         {/* Top Chat Bar */}
         <div className="p-4 bg-white border-b border-slate-150 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -128,7 +128,7 @@ export function CfoHub({
                 <Brain className="h-4 w-4" />
               </div>
               <div className="bg-white border border-slate-200 rounded-3xl rounded-tl-xs p-4 max-w-md text-xs font-bold text-slate-600 shadow-xs space-y-2">
-                <div className="flex items-center gap-2 text-[#0B5D4B] font-black">
+                <div className="flex items-center gap-2 text-primary font-black">
                   <Sparkles className="h-4 w-4 animate-spin" />
                   <span>Executing Deterministic Financial Engines...</span>
                 </div>
@@ -169,12 +169,12 @@ export function CfoHub({
               value={cfoInput}
               onChange={(e) => setCfoInput(e.target.value)}
               disabled={cfoThinking}
-              className="flex-1 bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-xs md:text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-[#0B5D4B] text-slate-800 disabled:opacity-50"
+              className="flex-1 bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-xs md:text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-[#0b3e33] text-slate-800 disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={cfoThinking || !cfoInput.trim()}
-              className="bg-[#0B5D4B] hover:bg-[#074739] disabled:opacity-40 text-white p-3.5 rounded-2xl transition shadow-xs flex items-center justify-center shrink-0"
+              className="bg-primary hover:bg-[#074739] disabled:opacity-40 text-white p-3.5 rounded-2xl transition shadow-xs flex items-center justify-center shrink-0"
             >
               <Send className="h-4 w-4" />
             </button>
