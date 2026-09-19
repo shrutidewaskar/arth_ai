@@ -6,16 +6,16 @@ import { LineChart, ArrowRight, Sparkles, Layers } from "lucide-react";
 
 export default function GoldAssetTrackingPage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] relative grid-bg-overlay overflow-hidden flex flex-col justify-between">
+    <div className="min-h-screen bg-bg-soft text-dark relative grid-bg-overlay overflow-hidden flex flex-col justify-between">
       {/* Decorative Background meshes */}
-      <div className="absolute top-0 left-1/4 h-[600px] w-[600px] mesh-glow-1 pointer-events-none rounded-full opacity-60" />
-      <div className="absolute top-[300px] right-1/4 h-[700px] w-[700px] mesh-glow-2 pointer-events-none rounded-full opacity-50" />
+      <div className="absolute top-0 left-1/4 h-150 w-150 mesh-glow-1 pointer-events-none rounded-full opacity-60" />
+      <div className="absolute top-75 right-1/4 h-175 w-175 mesh-glow-2 pointer-events-none rounded-full opacity-50" />
 
       {/* Navbar */}
       <nav className="z-10 border-b border-slate-200/50 px-6 py-5 bg-white/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
-            <div className="h-10 w-10 rounded-2xl bg-[#0B5D4B] flex items-center justify-center shadow-lg">
+            <div className="h-10 w-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
               <Layers className="text-white h-5 w-5" />
             </div>
             <span className="font-display text-2xl font-black tracking-tight text-primary">
@@ -44,8 +44,8 @@ export default function GoldAssetTrackingPage() {
           Catalog physical and digital gold holdings alongside other household assets in your Money workspace. Integrate verified asset values directly into your household net worth and goal collateral planning.
         </p>
 
-        <Link 
-          href="/dashboard?tab=money&subTab=investments" 
+        <Link
+          href="/dashboard?tab=money&subTab=investments"
           className="bg-primary hover:bg-[#074739] text-white font-bold px-10 py-5 rounded-full transition shadow-2xl shadow-primary/20 flex items-center gap-2.5 text-xs md:text-sm uppercase tracking-widest"
         >
           Launch Module <ArrowRight className="h-5 w-5" />

@@ -9,20 +9,20 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] relative overflow-x-hidden flex flex-col justify-between">
+    <div className="min-h-screen bg-bg-soft text-dark relative overflow-x-hidden flex flex-col justify-between">
       {/* Decorative Background meshes */}
-      <div className="absolute top-0 left-1/4 h-[600px] w-[600px] mesh-glow-1 pointer-events-none rounded-full opacity-60" />
-      <div className="absolute top-[300px] right-1/4 h-[700px] w-[700px] mesh-glow-2 pointer-events-none rounded-full opacity-50" />
+      <div className="absolute top-0 left-1/4 h-150 w-150 mesh-glow-1 pointer-events-none rounded-full opacity-60" />
+      <div className="absolute top-75 right-1/4 h-150 w-150 mesh-glow-2 pointer-events-none rounded-full opacity-50" />
 
       {/* Navbar */}
       <nav className="z-10 border-b border-slate-200/50 px-6 py-5 bg-white/80 backdrop-blur-md sticky top-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
-            <div className="h-10 w-10 rounded-2xl bg-[#0B5D4B] flex items-center justify-center shadow-lg">
+            <div className="h-10 w-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
               <Layers className="text-white h-5 w-5" />
             </div>
-            <span className="font-display text-2xl font-black tracking-tight text-[#0B5D4B]">
-              Arth<span className="text-[#18B27A] font-extrabold">AI</span>
+            <span className="font-display text-2xl font-black tracking-tight text-primary">
+              Arth<span className="text-primary font-extrabold">AI</span>
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export default function AboutPage() {
             </Link>
             <Link
               href="/register"
-              className="bg-[#0B5D4B] hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-6 py-2.5 rounded-full transition shadow-xl uppercase tracking-widest"
+              className="bg-primary hover:bg-[#074739] text-white text-xs md:text-sm font-bold px-6 py-2.5 rounded-full transition shadow-xl uppercase tracking-widest"
             >
               Get Started
             </Link>
@@ -45,11 +45,11 @@ export default function AboutPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-6 py-16 flex-1 relative z-10 space-y-12">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100/60 px-4 py-2 rounded-full text-xs font-extrabold text-[#0B5D4B] shadow-sm">
-            <Sparkles className="h-4 w-4 text-[#18B27A]" />
+          <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100/60 px-4 py-2 rounded-full text-xs font-extrabold text-primary shadow-sm">
+            <Sparkles className="h-4 w-4 text-accent" />
             About ArthAI
           </div>
-          <h1 className="font-display text-4xl md:text-6xl font-black text-[#0F172A] tracking-tight">
+          <h1 className="font-display text-4xl md:text-6xl font-black text-dark tracking-tight">
             Financial Operating System for Indian Households
           </h1>
           <p className="text-base md:text-lg text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
@@ -60,7 +60,7 @@ export default function AboutPage() {
         {/* Core Architectural Pillars */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-[#0B5D4B] flex items-center justify-center font-bold">
+            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-primary flex items-center justify-center font-bold">
               <Cpu className="h-5 w-5" />
             </div>
             <h3 className="font-bold text-base text-slate-900">Deterministic Engine</h3>
@@ -70,7 +70,7 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-[#0B5D4B] flex items-center justify-center font-bold">
+            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-primary flex items-center justify-center font-bold">
               <Brain className="h-5 w-5" />
             </div>
             <h3 className="font-bold text-base text-slate-900">Grounded Advisory</h3>
@@ -80,7 +80,7 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-[#0B5D4B] flex items-center justify-center font-bold">
+            <div className="h-10 w-10 rounded-xl bg-emerald-50 text-primary flex items-center justify-center font-bold">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <h3 className="font-bold text-base text-slate-900">Provenance & Isolation</h3>
@@ -105,7 +105,7 @@ export default function AboutPage() {
           <div className="pt-4 border-t border-slate-100 flex flex-wrap gap-4">
             <Link
               href="/dashboard"
-              className="bg-[#0B5D4B] hover:bg-[#074739] text-white text-xs font-bold px-6 py-3 rounded-full transition shadow-sm uppercase tracking-wider inline-flex items-center gap-2"
+              className="bg-primary hover:bg-[#074739] text-white text-xs font-bold px-6 py-3 rounded-full transition shadow-sm uppercase tracking-wider inline-flex items-center gap-2"
             >
               Explore OS Workspace <ArrowRight className="h-4 w-4" />
             </Link>

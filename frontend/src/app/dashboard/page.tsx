@@ -482,7 +482,7 @@ function DashboardContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] selection:bg-emerald-150 relative overflow-x-hidden p-6">
+    <div className="min-h-screen bg-bg-soft text-dark selection:bg-emerald-150 relative overflow-x-hidden p-6">
       <DashboardHeader
         attentionItems={attentionItems}
         showNotifPopover={showNotifPopover}
@@ -504,7 +504,7 @@ function DashboardContent() {
           onLogout={handleLogout}
         />
 
-        <main className="lg:col-span-9 min-h-[520px] p-8 bg-white border border-slate-100 rounded-3xl shadow-inner relative overflow-hidden flex flex-col justify-start">
+        <main className="lg:col-span-9 min-h-130 p-8 bg-white border border-slate-100 rounded-3xl shadow-inner relative overflow-hidden flex flex-col justify-start">
           <AnimatePresence mode="wait">
             <motion.div
               key={`hub-${activeHub}`}
@@ -656,7 +656,7 @@ export default function DashboardPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="min-h-screen bg-bg-soft flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       }

@@ -141,8 +141,8 @@ const PIPELINE_STEPS = [
   {
     step: "04",
     title: "Scenario Simulation",
-    subtitle: "Monte Carlo Engine",
-    description: "Runs multiple future financial simulations before making recommendations.",
+    subtitle: "Deterministic Sensitivity Engine",
+    description: "Evaluates financial trade-offs and cash flow deltas before making recommendations.",
     badge: "Risk Simulation",
     icon: (
       <svg className="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -324,6 +324,7 @@ export default function Page() {
             <button onClick={() => scrollToSection("sandbox")} className="hover:text-primary transition text-primary flex items-center gap-1.5 bg-emerald-50 px-3.5 py-1.5 rounded-lg">
               <Sparkles className="h-4 w-4 text-accent animate-pulse" /> Live Simulator Sandbox
             </button>
+            <Link href="/learn" className="hover:text-primary transition">Learn</Link>
             <button onClick={() => scrollToSection("how-it-works")} className="hover:text-primary transition">How it works</button>
             <button onClick={() => scrollToSection("testimonials")} className="hover:text-primary transition">Reviews</button>
           </div>
@@ -509,7 +510,7 @@ export default function Page() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             <Link
-              href="/dashboard?tab=cfo"
+              href="/learn/ai-financial-advisor"
               className="premium-card p-10 text-left block flex-col justify-between group hover:border-accent hover:shadow-lg transition"
             >
               <div>
@@ -527,7 +528,7 @@ export default function Page() {
             </Link>
 
             <Link
-              href="/dashboard?tab=plan&subTab=decision_center"
+              href="/learn/decision-simulation"
               className="premium-card p-10 text-left block flex-col justify-between group hover:border-accent hover:shadow-lg transition"
             >
               <div>
@@ -545,7 +546,7 @@ export default function Page() {
             </Link>
 
             <Link
-              href="/dashboard?tab=plan&subTab=goals"
+              href="/learn/goal-planning"
               className="premium-card p-10 text-left block flex-col justify-between group hover:border-accent hover:shadow-lg transition"
             >
               <div>
@@ -759,6 +760,7 @@ export default function Page() {
               <h4 className="text-xs font-bold text-accent uppercase tracking-widest mb-6">Company</h4>
               <ul className="space-y-3 text-xs md:text-sm text-emerald-100 font-semibold">
                 <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/learn" className="hover:text-white transition-colors">Learn & Architecture</Link></li>
                 <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
               </ul>
             </div>
