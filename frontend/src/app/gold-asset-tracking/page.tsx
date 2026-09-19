@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { LineChart, ArrowRight, Sparkles, Layers } from "lucide-react";
 
 export default function GoldAssetTrackingPage() {
@@ -13,14 +14,14 @@ export default function GoldAssetTrackingPage() {
       {/* Navbar */}
       <nav className="z-10 border-b border-slate-200/50 px-6 py-5 bg-white/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3 hover:opacity-90 transition">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
             <div className="h-10 w-10 rounded-2xl bg-[#0B5D4B] flex items-center justify-center shadow-lg">
               <Layers className="text-white h-5 w-5" />
             </div>
             <span className="font-display text-2xl font-black tracking-tight text-primary">
               Arth<span className="text-accent font-extrabold">AI</span>
             </span>
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -40,15 +41,15 @@ export default function GoldAssetTrackingPage() {
         </h1>
 
         <p className="text-lg md:text-xl text-slate-550 leading-relaxed max-w-2xl mb-12 font-semibold">
-          Seamlessly catalog ancestral, physical, and digital gold weight holdings. Track current market valuations and integrate gold assets directly into your household net worth calculations and goal collateral modeling.
+          Catalog physical and digital gold holdings alongside other household assets in your Money workspace. Integrate verified asset values directly into your household net worth and goal collateral planning.
         </p>
 
-        <a 
-          href="/?tab=investments" 
+        <Link 
+          href="/dashboard?tab=money&subTab=investments" 
           className="bg-primary hover:bg-[#074739] text-white font-bold px-10 py-5 rounded-full transition shadow-2xl shadow-primary/20 flex items-center gap-2.5 text-xs md:text-sm uppercase tracking-widest"
         >
           Launch Module <ArrowRight className="h-5 w-5" />
-        </a>
+        </Link>
       </main>
 
       {/* Footer */}

@@ -281,18 +281,25 @@ function DashboardContent() {
       if (item.target_route?.includes("goals")) {
         setActiveHub("plan");
         setActiveSubTab("goals");
-      } else if (item.target_route?.includes("cash_flow")) {
-        setActiveHub("money");
-        setActiveSubTab("cashflow");
-      } else if (item.target_route?.includes("investments")) {
-        setActiveHub("money");
-        setActiveSubTab("investments");
-      } else if (item.target_route?.includes("simulator")) {
+      } else if (item.target_route?.includes("action-plans") || item.target_route?.includes("action_plans")) {
+        setActiveHub("plan");
+        setActiveSubTab("action_plans");
+      } else if (item.target_route?.includes("simulator") || item.target_route?.includes("decision_center")) {
         setActiveHub("plan");
         setActiveSubTab("decision_center");
-      } else if (item.target_route?.includes("vault")) {
+      } else if (item.target_route?.includes("cash_flow") || item.target_route?.includes("cashflow")) {
+        setActiveHub("money");
+        setActiveSubTab("cashflow");
+      } else if (item.target_route?.includes("investments") || item.target_route?.includes("assets")) {
+        setActiveHub("money");
+        setActiveSubTab("investments");
+      } else if (item.target_route?.includes("vault") || item.target_route?.includes("evidence")) {
         setActiveHub("evidence");
         setActiveSubTab("vault");
+      } else if (item.target_route?.includes("cfo") || item.target_route?.includes("ai_cfo")) {
+        setActiveHub("cfo");
+      } else if (item.target_route?.includes("profile") || item.target_route?.includes("settings")) {
+        setActiveHub("profile");
       } else {
         setActiveHub("home");
       }

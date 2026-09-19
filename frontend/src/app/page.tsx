@@ -750,23 +750,23 @@ export default function Page() {
             <div>
               <h4 className="text-xs font-bold text-accent uppercase tracking-widest mb-6">Features</h4>
               <ul className="space-y-3 text-xs md:text-sm text-emerald-100 font-semibold">
-                <li><a href="/tax-regime-planner" className="hover:text-white">Tax Regime Planner</a></li>
-                <li><a href="/gold-asset-tracking" className="hover:text-white">Gold Asset Tracking</a></li>
-                <li><a href="/decision-simulation" className="hover:text-white">Decision Simulation</a></li>
+                <li><Link href="/tax-regime-planner" className="hover:text-white transition-colors">Tax Regime Planner</Link></li>
+                <li><Link href="/gold-asset-tracking" className="hover:text-white transition-colors">Gold Asset Tracking</Link></li>
+                <li><Link href="/decision-simulation" className="hover:text-white transition-colors">Decision Simulation</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-xs font-bold text-accent uppercase tracking-widest mb-6">Company</h4>
               <ul className="space-y-3 text-xs md:text-sm text-emerald-100 font-semibold">
-                <li><a href="#" className="hover:text-white">About Us</a></li>
-                <li><a href="#" className="hover:text-white">Careers</a></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-xs font-bold text-accent uppercase tracking-widest mb-6">Legal</h4>
               <ul className="space-y-3 text-xs md:text-sm text-emerald-100 font-semibold">
-                <li><a href="#" className="hover:text-white">Security & Encryption</a></li>
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
+                <li><Link href="/security" className="hover:text-white transition-colors">Security & Architecture</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>

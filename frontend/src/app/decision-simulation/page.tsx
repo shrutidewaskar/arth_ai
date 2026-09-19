@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Compass, ArrowRight, Sparkles, Layers } from "lucide-react";
 
 export default function DecisionSimulationPage() {
@@ -13,14 +14,14 @@ export default function DecisionSimulationPage() {
       {/* Navbar */}
       <nav className="z-10 border-b border-slate-200/50 px-6 py-5 bg-white/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3 hover:opacity-90 transition">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
             <div className="h-10 w-10 rounded-2xl bg-[#0B5D4B] flex items-center justify-center shadow-lg">
               <Layers className="text-white h-5 w-5" />
             </div>
             <span className="font-display text-2xl font-black tracking-tight text-primary">
               Arth<span className="text-accent font-extrabold">AI</span>
             </span>
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -28,7 +29,7 @@ export default function DecisionSimulationPage() {
       <main className="max-w-4xl mx-auto px-6 py-20 text-center flex-1 flex flex-col items-center justify-center relative z-10">
         <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100/60 px-4 py-2 rounded-full text-xs md:text-sm font-extrabold text-primary mb-8 shadow-sm">
           <Sparkles className="h-4 w-4 text-accent animate-pulse" />
-          ✨ Monte Carlo Projection Module
+          ✨ Scenario Simulation Module
         </div>
 
         <div className="h-24 w-24 rounded-3xl bg-emerald-50 border-2 border-emerald-100/50 flex items-center justify-center text-primary shadow-xl mb-8 transform hover:scale-105 transition duration-300">
@@ -40,15 +41,15 @@ export default function DecisionSimulationPage() {
         </h1>
 
         <p className="text-lg md:text-xl text-slate-550 leading-relaxed max-w-2xl mb-12 font-semibold">
-          Proactively run future financial projections before committing to large cash flow outlays (like purchasing a vehicle or switching careers). Evaluate compounding impacts on active education and retirement milestones.
+          Proactively evaluate scenario outcomes before committing to large cash flow outlays (like purchasing a vehicle or switching careers). Compare trade-offs across DTI ratios, monthly surplus, and milestone funding.
         </p>
 
-        <a 
-          href="/?tab=simulator" 
+        <Link 
+          href="/dashboard?tab=plan&subTab=decision_center" 
           className="bg-primary hover:bg-[#074739] text-white font-bold px-10 py-5 rounded-full transition shadow-2xl shadow-primary/20 flex items-center gap-2.5 text-xs md:text-sm uppercase tracking-widest"
         >
           Launch Module <ArrowRight className="h-5 w-5" />
-        </a>
+        </Link>
       </main>
 
       {/* Footer */}
