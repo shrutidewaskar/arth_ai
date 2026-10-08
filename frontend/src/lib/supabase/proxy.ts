@@ -32,12 +32,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // This will refresh the session if expired and check JWT validity
-  const claims = await supabase.auth.getClaims();
+  // Use getUser() to securely validate the session token against Supabase Auth
+  const { data: { user } } = await supabase.auth.getUser();
 
   const isDashboardRoute = request.nextUrl.pathname.startsWith("/dashboard");
   const isOnboardingRoute = request.nextUrl.pathname.startsWith("/onboarding");
-  if ((isDashboardRoute || isOnboardingRoute) && !claims) {
+  if ((isDashboardRoute || isOnboardingRoute) && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);

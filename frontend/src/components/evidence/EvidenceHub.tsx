@@ -382,7 +382,7 @@ export function EvidenceHub({
           )}
 
           {/* Upload Area */}
-          <div className="bg-linear-gradient-to-b from-slate-50 to-white border-2 border-dashed border-slate-200/90 p-8 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition hover:border-primary/40">
+          <div className="bg-gradient-to-b from-slate-50 to-white border-2 border-dashed border-slate-200/90 p-8 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition hover:border-primary/40">
             <input
               type="file"
               id="pdf-vault-uploader"

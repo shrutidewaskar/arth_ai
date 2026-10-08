@@ -115,6 +115,12 @@ export default function AboutPage() {
             >
               Security Architecture
             </Link>
+            <Link
+              href="/contact"
+              className="bg-emerald-50 hover:bg-emerald-100 text-primary text-xs font-bold px-6 py-3 rounded-full transition uppercase tracking-wider"
+            >
+              Contact Support
+            </Link>
           </div>
         </div>
       </main>

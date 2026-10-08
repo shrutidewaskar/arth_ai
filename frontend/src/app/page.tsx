@@ -406,7 +406,7 @@ export default function Page() {
 
           {/* HERO RIGHT COLUMN - FLOATING DECISION ENGINE */}
           <div className="lg:col-span-6 relative flex justify-center items-center">
-            <div className="absolute inset-0 bg-linear-gradient-to-tr from-primary to-emerald-950 rounded-4xl opacity-90 scale-95 overflow-hidden shadow-2xl" style={{ borderRadius: "120px 40px 120px 40px" }} />
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary to-emerald-950 rounded-4xl opacity-90 scale-95 overflow-hidden shadow-2xl" style={{ borderRadius: "120px 40px 120px 40px" }} />
 
             <motion.div
               initial={{ y: 10 }}
@@ -435,12 +435,12 @@ export default function Page() {
           <div className="relative w-full max-w-6xl py-4">
             {/* Connecting Line (Desktop) */}
             <div className="absolute top-14 left-[5%] right-[5%] h-0.5 bg-slate-200/50 hidden lg:block overflow-hidden pointer-events-none">
-              <div className="h-full bg-linear-gradient-to-r from-accent via-emerald-500 to-transparent w-[30%] absolute animate-pulse-line-h" />
+              <div className="h-full bg-gradient-to-r from-accent via-emerald-500 to-transparent w-[30%] absolute animate-pulse-line-h" />
             </div>
 
             {/* Connecting Line (Mobile) */}
             <div className="absolute left-1/2 -translate-x-1/2 top-8 bottom-8 w-0.5 bg-slate-200/50 block lg:hidden overflow-hidden pointer-events-none">
-              <div className="w-full bg-linear-gradient-to-b from-accent via-emerald-500 to-transparent h-[30%] absolute animate-pulse-line-v" />
+              <div className="w-full bg-gradient-to-b from-accent via-emerald-500 to-transparent h-[30%] absolute animate-pulse-line-v" />
             </div>
 
             {/* Steps Layout */}
@@ -605,7 +605,7 @@ export default function Page() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.25 }}
-                    className={`p-8 rounded-3xl bg-linear-gradient-to-br ${WORKSPACE_CARDS[activeTab]?.gradient || "from-slate-50 to-zinc-50"} border border-slate-200/60 shadow-lg relative flex flex-col justify-between min-h-100 w-full`}
+                    className={`p-8 rounded-3xl bg-gradient-to-br ${WORKSPACE_CARDS[activeTab]?.gradient || "from-slate-50 to-zinc-50"} border border-slate-200/60 shadow-lg relative flex flex-col justify-between min-h-100 w-full`}
                   >
                     <div className="space-y-6">
                       {/* Title block */}
@@ -734,6 +734,35 @@ export default function Page() {
           </div>
         </section>
 
+        {/* CONTACT & SUPPORT CTA SECTION */}
+        <section className="max-w-5xl mx-auto px-6 pb-24 text-center">
+          <div
+            className="p-8 sm:p-12 rounded-3xl bg-[#0B5D4B] text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-8 text-left relative overflow-hidden"
+            style={{ background: "linear-gradient(135deg, #0B5D4B 0%, #06382D 100%)" }}
+          >
+            <div className="space-y-3 max-w-xl relative z-10">
+              <div className="inline-flex items-center gap-2 bg-white/15 px-3.5 py-1 rounded-full text-xs font-extrabold text-emerald-200 tracking-wider uppercase">
+                <MessageSquare className="h-3.5 w-3.5 text-emerald-300" />
+                Support & Feedback Desk
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white">
+                Have a question, feedback, or found a bug?
+              </h2>
+              <p className="text-xs sm:text-sm text-emerald-100 font-medium leading-relaxed">
+                Our engineering and financial logic teams are here to help. Report calculation discrepancies, account grievances, or send feature ideas directly through our help desk.
+              </p>
+            </div>
+
+            <Link
+              href="/contact"
+              className="bg-white hover:bg-emerald-50 text-[#0B5D4B] text-xs sm:text-sm font-black px-8 py-4 rounded-full transition shadow-lg shrink-0 uppercase tracking-wider flex items-center justify-center gap-2 group relative z-10"
+            >
+              <span>Contact Us & Report</span>
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </section>
+
         {/* FOOTER */}
         <footer className="bg-[#084235] text-white py-20 px-6 border-t border-emerald-950 relative z-10">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-16">
@@ -761,6 +790,7 @@ export default function Page() {
               <ul className="space-y-3 text-xs md:text-sm text-emerald-100 font-semibold">
                 <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
                 <li><Link href="/learn" className="hover:text-white transition-colors">Learn & Architecture</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact & Support</Link></li>
                 <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
               </ul>
             </div>
